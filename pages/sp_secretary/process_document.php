@@ -17,7 +17,7 @@ if (!$userId) {
 if (!$documentId) {
     $_SESSION['route_status'] = 'error';
     $_SESSION['route_message'] = 'Invalid document ID.';
-    header('Location: received_documents.php');
+    header('Location: received_documents');
     exit;
 }
 
@@ -28,7 +28,7 @@ $doc = getReceivedDocumentById($documentId, $userId);
 if (!$doc) {
     $_SESSION['route_status'] = 'error';
     $_SESSION['route_message'] = 'Document not found or you are not authorized to process it.';
-    header('Location: received_documents.php');
+    header('Location: received_documents');
     exit;
 }
 

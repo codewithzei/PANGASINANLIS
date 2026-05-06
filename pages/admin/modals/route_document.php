@@ -695,7 +695,7 @@ foreach ($allRequirements as $req) {
                 redirect: 'manual' 
             })
             .then(response => {
-                window.location.href = '../../pages/admin/routed_documents.php';
+                window.location.href = '../../pages/admin/routed_documents';
             })
             .catch(error => {
                 console.error('Error:', error);

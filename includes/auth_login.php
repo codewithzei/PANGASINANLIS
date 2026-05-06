@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($user && password_verify($password, $user['password_hash'])) {
         if ($user['account_status'] !== 'Active') {
             $_SESSION['login_error'] = 'Your account is ' . strtolower($user['account_status']) . '. Please contact the administrator.';
-            header('Location: ../pages/auth/login.php');
+            header('Location: ../pages/auth/login');
             exit;
         }
 
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['profile_picture'] = $user['profile_picture'];
 
         // Use global dashboard instead of folder-based dashboard
-        header("Location: ../pages/dashboard.php");
+        header("Location: ../pages/dashboard");
         exit;
     } else {
         $_SESSION['login_error'] = 'Invalid username or password.';

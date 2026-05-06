@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../classes/document.php'; // Siguraduhin na tama ang
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['route_status'] = 'error';
     $_SESSION['route_message'] = 'Unauthorized access. Please login.';
-    header('Location: ../../../pages/login.php');
+    header('Location: ../../../pages/login');
     exit;
 }
 

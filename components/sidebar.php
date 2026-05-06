@@ -251,7 +251,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
 
         <!-- Common HOME section -->
         <div class="nav-section text-[#0033A1] text-xs font-bold px-2 mb-1">HOME</div>
-        <a href="/PangasinanLIS/pages/dashboard.php" data-tooltip="Dashboard"
+        <a href="/PangasinanLIS/pages/dashboard" data-tooltip="Dashboard"
             class="flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
             <span class="mr-2 shrink-0">
                 <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -266,7 +266,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
         <?php if ($roleName === 'Super Admin'): ?>
             <!-- SUPER ADMIN SIDEBAR -->
             <div class="nav-section text-[#0033A1] text-xs font-bold px-2 mt-6 mb-1">ACCESS CONTROL</div>
-            <a href="/PangasinanLIS/pages/super_admin/user_accounts.php" data-tooltip="User Accounts"
+            <a href="/PangasinanLIS/pages/super_admin/user_accounts" data-tooltip="User Accounts"
                 class="flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
                 <span class="mr-2 shrink-0">
                     <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -277,7 +277,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
                 </span>
                 <span class="nav-label">User Accounts</span>
             </a>
-            <a href="/PangasinanLIS/pages/super_admin/user_roles.php" data-tooltip="User Roles"
+            <a href="/PangasinanLIS/pages/super_admin/user_roles" data-tooltip="User Roles"
                 class="flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
                 <span class="mr-2 shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none"
@@ -303,7 +303,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
             </a>
 
             <div class="nav-section text-[#0033A1] text-xs font-bold px-2 mt-6 mb-1">CONFIGURATION</div>
-            <a href="/PangasinanLIS/pages/super_admin/document_types.php" data-tooltip="Document Types"
+            <a href="/PangasinanLIS/pages/super_admin/document_types" data-tooltip="Document Types"
                 class="flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
                 <span class="mr-2 shrink-0">
                     <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -314,7 +314,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
                 </span>
                 <span class="nav-label">Document Types</span>
             </a>
-            <a href="/PangasinanLIS/pages/super_admin/muni_cities.php" data-tooltip="Municipalities"
+            <a href="/PangasinanLIS/pages/super_admin/muni_cities" data-tooltip="Municipalities"
                 class="flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
                 <span class="mr-2 shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none"
@@ -330,7 +330,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
                 </span>
                 <span class="nav-label">Municipalities</span>
             </a>
-            <a href="/PangasinanLIS/pages/super_admin/document_statuses.php" data-tooltip="Document Status"
+            <a href="/PangasinanLIS/pages/super_admin/document_statuses" data-tooltip="Document Status"
                 class="flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
                 <span class="mr-2 shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none"
@@ -384,7 +384,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
                 </span>
                 <span class="nav-label">Drafts</span>
             </a>
-            <a href="/PangasinanLIS/pages/admin/routed_documents.php" data-tooltip="Routed Documents"
+            <a href="/PangasinanLIS/pages/admin/routed_documents" data-tooltip="Routed Documents"
                 class="flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
                 <span class="mr-2 shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none"
@@ -547,7 +547,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
                 <!-- Accordion submenu (expanded sidebar) -->
                 <div id="dataManagementMenu"
                     class="max-h-0 overflow-hidden bg-gray-50 border-[#E2F0FF] space-y-1 transition-all duration-300 ease-in-out">
-                    <a href="/PangasinanLIS/pages/admin/external_offices.php"
+                    <a href="/PangasinanLIS/pages/admin/external_offices"
                         class="flex items-center px-2 py-2 mt-2 ml-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-xs font-semibold rounded-sm transition-all group">
                         <span class="mr-2 shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none"
@@ -561,7 +561,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
                         </span>
                         <span class="nav-label">External Offices</span>
                     </a>
-                    <a href="/PangasinanLIS/pages/admin/hospitals.php"
+                    <a href="/PangasinanLIS/pages/admin/hospitals"
                         class="flex items-center px-2 py-2 mt-2 ml-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-xs font-semibold rounded-sm transition-all group">
                         <span class="mr-2 shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none"
@@ -575,7 +575,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
                         </span>
                         <span class="nav-label">Hospitals</span>
                     </a>
-                    <a href="/PangasinanLIS/pages/admin/source_types.php"
+                    <a href="/PangasinanLIS/pages/admin/source_types"
                         class="flex items-center px-2 py-2 mt-2 ml-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-xs font-semibold rounded-sm transition-all group">
                         <span class="mr-2 shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none"
@@ -587,7 +587,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
                         </span>
                         <span class="nav-label">Source Types</span>
                     </a>
-                    <a href="/PangasinanLIS/pages/admin/routing_options.php"
+                    <a href="/PangasinanLIS/pages/admin/routing_options"
                         class="flex items-center px-2 py-2 mt-2 ml-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-xs font-semibold rounded-sm transition-all group">
                         <span class="mr-2 shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none"
@@ -598,7 +598,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
                         </span>
                         <span class="nav-label">Routing Options</span>
                     </a>
-                    <a href="/PangasinanLIS/pages/admin/communication_categories.php"
+                    <a href="/PangasinanLIS/pages/admin/communication_categories"
                         class="flex items-center px-2 py-2 mt-2 ml-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-xs font-semibold rounded-sm transition-all group">
                         <span class="mr-2 shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none"
@@ -609,7 +609,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
                         </span>
                         <span class="nav-label">Communication Categories</span>
                     </a>
-                    <a href="/PangasinanLIS/pages/admin/checklists.php" data-tooltip="Checklists"
+                    <a href="/PangasinanLIS/pages/admin/checklists" data-tooltip="Checklists"
                         class="flex items-center px-2 py-2 mt-2 ml-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-xs font-semibold rounded-sm transition-all group">
                         <span class="mr-2 shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none"
@@ -650,7 +650,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
             <?php elseif ($roleName === 'SP Secretary' || $roleName === 'SP Secretary'): ?>
             <!-- ADMIN SIDEBAR -->
             <div class="nav-section text-[#0033A1] text-xs font-bold px-2 mt-6 mb-1">DOCUMENT MANAGEMENT</div>
-            <a href="/PangasinanLIS/pages/sp_secretary/inbox.php" data-tooltip="Inbox"
+            <a href="/PangasinanLIS/pages/sp_secretary/inbox" data-tooltip="Inbox"
                 class="relative flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
                 <span class="mr-2 shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-inbox-icon lucide-inbox"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
@@ -666,7 +666,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
             </a>
 
             <!-- RECEIVED DOCUMENTS LINK WITH BADGE -->
-            <a href="/PangasinanLIS/pages/sp_secretary/received_documents.php" data-tooltip="Received Documents"
+            <a href="/PangasinanLIS/pages/sp_secretary/received_documents" data-tooltip="Received Documents"
                 class="relative flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
                 <span class="mr-2 shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-check-icon lucide-file-check"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="m9 15 2 2 4-4"/></svg>
@@ -680,7 +680,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
                     </span>
                 <?php endif; ?>
             </a>
-            <a href="/PangasinanLIS/pages/sp_secretary/routed_documents.php" data-tooltip="Routed Documents"
+            <a href="/PangasinanLIS/pages/sp_secretary/routed_documents" data-tooltip="Routed Documents"
                 class="flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
                 <span class="mr-2 shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none"
@@ -754,7 +754,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
             <?php elseif ($roleName === 'Committee' || $roleName === 'Committee'): ?>
             <!-- ADMIN SIDEBAR -->
             <div class="nav-section text-[#0033A1] text-xs font-bold px-2 mt-6 mb-1">DOCUMENT MANAGEMENT</div>
-            <a href="/PangasinanLIS/pages/sp_secretary/inbox.php" data-tooltip="Inbox"
+            <a href="/PangasinanLIS/pages/sp_secretary/inbox" data-tooltip="Inbox"
                 class="relative flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
                 <span class="mr-2 shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-inbox-icon lucide-inbox"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
@@ -763,7 +763,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
             </a>
 
             <!-- RECEIVED DOCUMENTS LINK WITH BADGE -->
-            <!-- <a href="/PangasinanLIS/pages/sp_secretary/received_documents.php" data-tooltip="Received Documents"
+            <!-- <a href="/PangasinanLIS/pages/sp_secretary/received_documents" data-tooltip="Received Documents"
                 class="relative flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
                 <span class="mr-2 shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-check-icon lucide-file-check"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="m9 15 2 2 4-4"/></svg>
@@ -771,7 +771,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
                 <span class="nav-label flex-1">Received Documents</span>
             </a> -->
 
-            <a href="/PangasinanLIS/pages/committee/referred_documents.php" data-tooltip="Referred Documents"
+            <a href="/PangasinanLIS/pages/committee/referred_documents" data-tooltip="Referred Documents"
                 class="relative flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
                 <span class="mr-2 shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text-icon lucide-file-text"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
@@ -779,7 +779,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
                 <span class="nav-label flex-1">Referred Documents</span>
             </a>
 
-            <a href="/PangasinanLIS/pages/committee/committee_hearings.php" data-tooltip="Committee Hearings"
+            <a href="/PangasinanLIS/pages/committee/committee_hearings" data-tooltip="Committee Hearings"
                 class="relative flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
                 <span class="mr-2 shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users-icon lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg>
@@ -787,7 +787,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
                 <span class="nav-label flex-1">Committee Hearings</span>
             </a>
 
-            <a href="/PangasinanLIS/pages/committee/all_reports.php" data-tooltip="All Reports"
+            <a href="/PangasinanLIS/pages/committee/all_reports" data-tooltip="All Reports"
                 class="relative flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
                 <span class="mr-2 shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-files-icon lucide-files"><path d="M15 2h-4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8"/><path d="M16.706 2.706A2.4 2.4 0 0 0 15 2v5a1 1 0 0 0 1 1h5a2.4 2.4 0 0 0-.706-1.706z"/><path d="M5 7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h8a2 2 0 0 0 1.732-1"/></svg>
@@ -795,7 +795,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
                 <span class="nav-label flex-1">All Reports</span>
             </a>
 
-            <a href="/PangasinanLIS/pages/committee/administrative_cases.php" data-tooltip="Administrative Cases"
+            <a href="/PangasinanLIS/pages/committee/administrative_cases" data-tooltip="Administrative Cases"
                 class="relative flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
                 <span class="mr-2 shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scale-icon lucide-scale"><path d="M12 3v18"/><path d="m19 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1"/><path d="m5 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M7 21h10"/></svg>
@@ -889,7 +889,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
             </div>
         </div>
 
-        <a href="/PangasinanLIS/includes/auth_logout.php"
+        <a href="/PangasinanLIS/includes/auth_logout"
             class="sidebar-logout-btn text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors shrink-0"
             title="Logout">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none"

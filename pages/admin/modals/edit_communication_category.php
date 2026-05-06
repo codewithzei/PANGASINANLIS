@@ -1,0 +1,162 @@
+<!-- Edit Role Modal Wrapper -->
+<div id="communication-category-edit-modal" class="hidden">
+    
+    <!-- Modal Overlay -->
+    <div 
+        id="editModalOverlay" 
+        onclick="closeModal('communication-category-edit-modal')"
+        class="fixed inset-0 bg-black/75 z-[101] transition-opacity duration-300 cursor-pointer">
+    </div>
+
+    <!-- Modal -->
+    <div 
+        id="editModal" 
+        class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[calc(100%-2rem)] md:w-full max-w-md bg-white rounded-lg shadow-xl transition-all duration-300">
+        
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-5 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Edit Communication Category</h2>
+            <button 
+                id="editCloseBtn"
+                onclick="closeModal('communication-category-edit-modal')"
+                class="text-gray-400 hover:text-gray-600 transition duration-200 focus:outline-none cursor-pointer">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Success/Error Message -->
+        <div id="editCommunicationCategoryMessage" class="hidden mx-6 mt-4 p-4 rounded-lg text-sm font-medium">
+            <div id="editCommunicationCategoryMessageContent"></div>
+        </div>
+
+        <!-- Modal Body -->
+        <form id="editCommunicationCategoryForm" class="p-6" method="POST" action="../../includes/actions_admin/edit_communication_category.php">
+            <input type="hidden" id="communicationCategoryIdInput" name="communication_category_id">
+            
+            <div class="mb-4">
+                <label for="editCommunicationCategoryInput" class="block text-sm font-medium text-gray-700 mb-2">
+                    Communication Category Name
+                </label>
+                <input 
+                    type="text" 
+                    id="editCommunicationCategoryInput"
+                    name="communication_category_name"
+                    placeholder="Enter communication category name"
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#0033A1] focus:border-transparent transition duration-200"
+                    required>
+            </div>
+
+            <div class="mb-4">
+                <label for="editStatusSelect" class="block text-sm font-medium text-gray-700 mb-2">
+                    Status
+                </label>
+                <select 
+                    id="editStatusSelect"
+                    name="data_status_id"
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#0033A1] focus:border-transparent transition duration-200 bg-white"
+                    required>
+                    <option value="1">Active</option>
+                    <option value="2">Inactive</option>
+                </select>
+            </div>
+        </form>
+
+        <!-- Modal Footer -->
+        <div class="flex items-center justify-end gap-3 p-5 border-t border-gray-200">
+            <button 
+                type="button"
+                id="editCancelBtn"
+                onclick="closeModal('communication-category-edit-modal')"
+                class="px-5 py-2.5 text-gray-700 bg-gray-100 hover:bg-gray-200 font-medium rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300 cursor-pointer">
+                Cancel
+            </button>
+            <button 
+                type="submit"
+                form="editCommunicationCategoryForm"
+                id="updateBtn"
+                class="px-5 py-2.5 text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                Update
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Function to edit role - loads data into modal
+function editCommunicationCategory(communicationCategoryId) {
+    // Fetch role data via AJAX
+    fetch('../../includes/fetch_communication_categories_data.php?action=getCommunicationCategory&id=' + communicationCategoryId)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Populate form fields
+                document.getElementById('communicationCategoryIdInput').value = data.data.communication_category_id;
+                document.getElementById('editCommunicationCategoryInput').value = data.data.communication_category_name;
+                
+                // Map status text to dropdown value
+                const statusValue = data.data.status && data.data.status.toLowerCase() === 'active' ? '1' : '2';
+                document.getElementById('editStatusSelect').value = statusValue;
+                
+                // Clear any previous messages
+                const editCommunicationCategoryMessage = document.getElementById('editCommunicationCategoryMessage');
+                if (editCommunicationCategoryMessage) {
+                    editCommunicationCategoryMessage.classList.add('hidden');
+                }
+                
+                // Open the modal
+                openModal('communication-category-edit-modal');
+            } else {
+                alert('Error loading communication category data: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching communication category data:', error);
+            alert('Error loading communication category data. Please try again.');
+        });
+}
+
+// Function to delete role
+function deleteCommunicationCategory(communicationCategoryId, communicationCategoryName) {
+    if (confirm(`Are you sure you want to delete the communication category "${communicationCategoryName}"? This action cannot be undone.`)) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '../../includes/actions_admin/delete_communication_category.php';
+        
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'communication_category_id';
+        input.value = communicationCategoryId;
+        
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Reset form and message when modal is opened via regular method
+document.addEventListener('DOMContentLoaded', function() {
+    const editCommunicationCategoryForm = document.getElementById('editCommunicationCategoryForm');
+    
+    if (editCommunicationCategoryForm) {
+        // Optional: Add form submission validation
+        editCommunicationCategoryForm.addEventListener('submit', function(e) {
+            const communicationCategoryName = document.getElementById('editCommunicationCategoryInput').value.trim();
+            const statusId = document.getElementById('editStatusSelect').value;
+            
+            if (!communicationCategoryName) {
+                e.preventDefault();
+                alert('Please enter a communication category name.');
+                return false;
+            }
+            
+            if (!statusId) {
+                e.preventDefault();
+                alert('Please select a status.');
+                return false;
+            }
+        });
+    }
+});
+</script>

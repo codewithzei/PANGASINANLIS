@@ -33,7 +33,6 @@ if (!$doc) {
 }
 
 // 2. KUNIN ANG ROUTING OPTIONS PARA SA DROPDOWN 
-// (I-adjust base sa actual na pangalan ng table mo kung iba)
 $stmt = $pdo->prepare("
     SELECT routing_option_id AS id, routing_option_name 
     FROM routing_options 
@@ -44,6 +43,32 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute();
 $routingOptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// 3. KUNIN ANG TRACKING HISTORY MULA SA TOTOONG DATABASE (With Role Name)
+$trackingHistory = [];
+$historyError = null;
+
+try {
+    $historyStmt = $pdo->prepare("
+        SELECT 
+            dh.action AS action_taken, 
+            dh.remarks, 
+            dh.created_at, 
+            CONCAT(ui.first_name, ' ', ui.last_name) AS processed_by_name,
+            ur.user_role_name AS role_name
+        FROM document_history dh
+        LEFT JOIN user_info ui ON dh.user_id = ui.user_account_id
+        LEFT JOIN user_accounts ua ON dh.user_id = ua.user_account_id
+        LEFT JOIN user_roles ur ON ua.user_role_id = ur.user_role_id
+        WHERE dh.document_id = :document_id 
+        ORDER BY dh.created_at DESC
+    ");
+    $historyStmt->execute([':document_id' => $documentId]);
+    $trackingHistory = $historyStmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    // Sinasalo natin ang error dito
+    $historyError = $e->getMessage();
+}
 ?>
 
 <div class="">
@@ -68,7 +93,7 @@ $routingOptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="flex items-center justify-between p-5 border-b border-gray-200 shrink-0 bg-slate-50">
                             <div class="flex items-center gap-3">
                                 <!-- Back Arrow Icon -->
-                                <a href="received_documents.php" class="p-1.5 text-slate-400 hover:text-[#0033A1] hover:bg-blue-50 rounded-lg transition-all" title="Back to Ongoing Tasks">
+                                <a href="received_documents" class="p-1.5 text-slate-400 hover:text-[#0033A1] hover:bg-blue-50 rounded-lg transition-all" title="Back to Ongoing Tasks">
                                     <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                                     </svg>
@@ -124,7 +149,6 @@ $routingOptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <p class="text-slate-800 font-medium">
                                         <?php 
                                             $mainSource = !empty($doc['source_name']) ? $doc['source_name'] : ($doc['source_type_name'] ?? 'N/A');
-                                            
                                             $location = '';
                                             
                                             if (!empty($doc['muni_city_name'])) {
@@ -154,7 +178,6 @@ $routingOptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 $filePath = '../../' . htmlspecialchars($file['file_path']); 
                                                 $fileName = htmlspecialchars($file['file_name']);
                                                 
-                                                // Kunin ang extension para sa dynamic icon (pdf, docx, xlsx, etc.)
                                                 $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
                                                 
                                                 if ($ext === 'pdf') {
@@ -183,7 +206,6 @@ $routingOptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                         </div>
                                                     </div>
 
-                                                    <!-- Download Icon -->
                                                     <a href="<?php echo $filePath; ?>" download class="shrink-0 text-slate-400 hover:text-[#0033A1] transition-colors p-2" title="Download file" onclick="event.stopPropagation();">
                                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -208,15 +230,16 @@ $routingOptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </div>
 
-                <!-- RIGHT COLUMN: PROCESS FORM (40% Width) -->
-                <!-- (Mananatili itong katulad ng dati...) -->
-                <div class="lg:col-span-1">
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 sticky">
-                        <div class="flex items-center justify-between p-5 border-b border-gray-200 shrink-0">
-                            <h2 class="text-xl font-semibold text-gray-800">Route Document</h2>
+                <!-- RIGHT COLUMN: PROCESS FORM & TRACKING HISTORY (40% Width) -->
+                <div class="lg:col-span-1 space-y-6">
+                    
+                    <!-- 1. ROUTE DOCUMENT CARD -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200">
+                        <div class="flex items-center justify-between p-5 border-b border-gray-200 bg-slate-50 rounded-t-xl shrink-0">
+                            <h2 class="text-lg font-semibold text-gray-800">Route Document</h2>
                         </div>
                         
-                        <form action="../../includes/actions_sp_secretary/process_route_document.php" method="POST" class="p-6">
+                        <form action="../../includes/actions_sp_secretary/process_route_document" method="POST" class="p-6">
                             <input type="hidden" name="document_id" value="<?php echo $doc['document_id']; ?>">
                             <input type="hidden" name="tracking_number" value="<?php echo htmlspecialchars($doc['tracking_number']); ?>">
 
@@ -226,7 +249,6 @@ $routingOptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <label for="routingOption" class="block text-sm font-medium text-gray-700 mb-1">Routing Option *</label>
                                     
                                     <?php 
-                                        // 1. Alamin natin kung 'Communication' ba ang uri ng dokumentong ito
                                         $isCommunication = stripos($doc['document_type_name'] ?? '', 'communication') !== false;
                                     ?>
                                     
@@ -238,10 +260,8 @@ $routingOptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <?php if (!isset($routingOptions['error'])): ?>
                                             <?php foreach ($routingOptions as $option): ?>
                                                 <?php 
-                                                    // 2. I-check kung "Noted" ba itong kasalukuyang option sa loop
                                                     $isNotedOption = stripos($option['routing_option_name'], 'noted') !== false;
                                                     
-                                                    // 3. LOGIC: Kung "Noted" siya, pero HINDI communication ang papel, lagpasan (skip) natin!
                                                     if ($isNotedOption && !$isCommunication) {
                                                         continue;
                                                     }
@@ -259,7 +279,7 @@ $routingOptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <label class="block text-sm font-semibold text-slate-700 mb-2">Remarks/Notes</label>
                                     <textarea id="remarks" name="remarks" placeholder="Enter additional remarks or notes"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#0033A1] focus:border-transparent transition duration-200"
-                                style="resize: vertical; overflow: auto; min-height: 175px; max-height: 175px; width: 100%;"></textarea>
+                                style="resize: vertical; overflow: auto; min-height: 125px; max-height: 125px; width: 100%;"></textarea>
                                 </div>
 
                                 <!-- Submit Button -->
@@ -272,6 +292,79 @@ $routingOptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </form>
                     </div>
+
+                    <!-- 2. TRACKING HISTORY CARD (Now Dynamic!) -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200">
+                        <div class="flex items-center justify-between p-5 border-b border-gray-200 bg-slate-50 rounded-t-xl shrink-0">
+                            <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                                Tracking History
+                            </h2>
+                        </div>
+                        
+                        <div class="p-6">
+                            
+                            <!-- I-display ang error dito kapag may mali sa SQL para alam agad natin -->
+                            <?php if ($historyError): ?>
+                                <div class="mb-4 p-4 text-sm text-red-800 rounded-lg bg-red-50 border border-red-200">
+                                    <strong>Database Error:</strong> <?php echo htmlspecialchars($historyError); ?>
+                                    <br><span class="text-xs text-red-600">Paki-check kung may 'first_name' at 'last_name' na column ang 'user_accounts' table mo.</span>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Timeline Container -->
+                            <ol class="relative border-l-2 border-blue-200 ml-2.5">                  
+                                
+                                <?php if (empty($trackingHistory) && !$historyError): ?>
+                                    <li class="mb-6 ml-6">
+                                        <p class="text-sm font-normal text-slate-500 italic">No tracking history available yet.</p>
+                                    </li>
+                                <?php elseif (!empty($trackingHistory)): ?>
+                                    
+                                    <!-- I-loop ang laman ng document_history table -->
+                                    <?php foreach ($trackingHistory as $index => $history): ?>
+                                        <?php 
+                                            $isLatest = ($index === 0); 
+                                            
+                                            $dotColor = $isLatest ? 'bg-[#0033A1]' : 'bg-slate-400';
+                                            $ringColor = $isLatest ? 'bg-blue-100' : 'bg-slate-100';
+                                            
+                                            $actionName = htmlspecialchars($history['action_taken'] ?? 'System Update');
+                                            $remarks = htmlspecialchars($history['remarks'] ?? '');
+                                            $processedBy = htmlspecialchars($history['processed_by_name'] ?? '');
+                                            // Kukunin natin yung role name, kung wala, default ay 'System'
+                                            $roleName = htmlspecialchars($history['role_name'] ?? 'System');
+                                            $dateFormatted = isset($history['created_at']) ? date('M d, Y - h:i A', strtotime($history['created_at'])) : 'Unknown Date';
+                                        ?>
+                                        <li class="mb-6 ml-6">
+                                            <span class="absolute flex items-center justify-center w-5 h-5 <?php echo $ringColor; ?> rounded-full -left-[11px] ring-4 ring-white">
+                                                <div class="w-2.5 h-2.5 <?php echo $dotColor; ?> rounded-full"></div>
+                                            </span>
+                                            
+                                            <h3 class="flex items-center mb-1 text-sm font-semibold text-gray-900">
+                                                <?php echo $actionName; ?>
+                                                <?php if ($isLatest): ?>
+                                                    <span class="bg-blue-100 text-[#0033A1] text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ml-3">Latest</span>
+                                                <?php endif; ?>
+                                            </h3>
+                                            
+                                            <time class="block mb-2 text-xs font-normal leading-none text-slate-400">
+                                                <?php echo $dateFormatted; ?> 
+                                                <?php if (!empty($processedBy)): ?>
+                                                    <span class="mx-1">•</span> Processed by: <span class="font-medium text-slate-700"><?php echo $processedBy; ?></span> <span class="italic">(<?php echo $roleName; ?>)</span>
+                                                <?php endif; ?>
+                                            </time>
+                                            
+                                            <?php if (!empty($remarks)): ?>
+                                                <p class="text-sm font-normal text-slate-600 bg-slate-50 p-2 rounded border border-slate-100 mt-2">"<?php echo $remarks; ?>"</p>
+                                            <?php endif; ?>
+                                        </li>
+                                    <?php endforeach; ?>
+                                    
+                                <?php endif; ?>
+
+                            </ol>
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -280,7 +373,6 @@ $routingOptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <script>
-    // Simpleng script para itago ang "Forward To" kapag ang pinili ay Mark as Completed
     function toggleRouting(action) {
         const destDiv = document.getElementById('destination_div');
         const destSelect = document.getElementById('forward_to_routing_id');
@@ -291,7 +383,7 @@ $routingOptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } else {
             destDiv.classList.add('hidden');
             destSelect.removeAttribute('required');
-            destSelect.value = ''; // Reset the value
+            destSelect.value = ''; 
         }
     }
 </script>

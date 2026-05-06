@@ -182,9 +182,11 @@ function getStatusBadgeClass($statusName) {
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <button onclick="viewDocument(<?php echo $doc['document_id']; ?>)" class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50" title="View Document">
-                                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                                            </button>
+                                            <div class="flex items-center gap-2">
+                                                <a href="view_document?id=<?php echo $doc['document_id']; ?>" class="text-gray-500 hover:text-gray-800 p-1 rounded hover:bg-gray-100">
+                                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                                </a>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -288,9 +290,11 @@ function getStatusBadgeClass($statusName) {
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <button onclick="viewDocument(<?php echo $doc['document_id']; ?>)" class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50" title="View Document">
-                                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                                            </button>
+                                            <div class="flex items-center gap-2">
+                                                <a href="view_document?id=<?php echo $doc['document_id']; ?>" class="text-gray-500 hover:text-gray-800 p-1 rounded hover:bg-gray-100">
+                                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                                </a>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -394,9 +398,11 @@ function getStatusBadgeClass($statusName) {
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <button onclick="viewDocument(<?php echo $doc['document_id']; ?>)" class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50" title="View Document">
-                                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                                            </button>
+                                            <div class="flex items-center gap-2">
+                                                <a href="view_document?id=<?php echo $doc['document_id']; ?>" class="text-gray-500 hover:text-gray-800 p-1 rounded hover:bg-gray-100">
+                                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                                </a>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>

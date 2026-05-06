@@ -161,7 +161,7 @@ $receivedDocs = getSpReceivedDocuments($userId);
                                         </td>
                                         
                                         <!-- Pwedeng mag-break ang Subject Matter pero may min-width na 250px -->
-                                        <td class="px-6 py-4 text-sm text-gray-700 break-words min-w-[250px]">
+                                        <td class="px-6 py-4 text-sm text-gray-700 wrap-break-word min-w-62.5">
                                             <?php echo htmlspecialchars($doc['subject_matter']); ?>
                                         </td>
                                         
@@ -175,7 +175,7 @@ $receivedDocs = getSpReceivedDocuments($userId);
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex items-center gap-2">
-                                                <a href="process_document.php?id=<?php echo $doc['document_id']; ?>" class="text-gray-500 hover:text-gray-800 p-1 rounded hover:bg-gray-100">
+                                                <a href="process_document?id=<?php echo $doc['document_id']; ?>" class="text-gray-500 hover:text-gray-800 p-1 rounded hover:bg-gray-100">
                                                     <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                                                 </a>
                                             </div>

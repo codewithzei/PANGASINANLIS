@@ -127,5 +127,6 @@ include '../../components/header.php';
 </div>
 
 <script src="/PangasinanLIS/src/js/global.js"></script>
+<script src="/PangasinanLIS/src/js/page_transition.js"></script>
 </body>
 </html>

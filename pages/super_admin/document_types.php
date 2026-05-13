@@ -175,23 +175,24 @@ $docTypes = getAllDocTypes();
                                         </td>
                                         <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex items-center gap-2">
-                                                <button onclick="editDocType(<?php echo $docType['document_type_id']; ?>)"
-                                                    class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50">
-                                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                                <button onclick="editDocType(<?php echo $docType['document_type_id']; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-blue-600 bg-blue-100 hover:bg-blue-200 rounded transition duration-150 cursor-pointer">
+                                                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                                                         fill="currentColor">
                                                         <path
                                                             d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                                     </svg>
+                                                    Edit
                                                 </button>
                                                 <button
                                                     onclick="deleteDocType(<?php echo $docType['document_type_id']; ?>, '<?php echo htmlspecialchars($docType['document_type_name']); ?>')"
-                                                    class="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50">
-                                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:text-red-900 rounded transition duration-150 cursor-pointer">
+                                                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                                                         fill="currentColor">
                                                         <path fill-rule="evenodd"
                                                             d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
                                                             clip-rule="evenodd" />
                                                     </svg>
+                                                    Delete
                                                 </button>
                                             </div>
                                         </td>
@@ -224,6 +225,7 @@ $docTypes = getAllDocTypes();
 <?php include 'modals/edit_doc_type.php'; ?>
 <?php include 'modals/delete_doc_type.php'; ?>
 <script src="/PangasinanLIS/src/js/global.js"></script>
+<script src="/PangasinanLIS/src/js/page_transition.js"></script>
 <script>
     // Initialize pagination when page loads
     document.addEventListener('DOMContentLoaded', function () {

@@ -372,6 +372,7 @@ try {
     </div>
 </div>
 
+<script src="/PangasinanLIS/src/js/page_transition.js"></script>
 <script>
     function toggleRouting(action) {
         const destDiv = document.getElementById('destination_div');

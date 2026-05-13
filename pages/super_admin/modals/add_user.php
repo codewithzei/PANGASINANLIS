@@ -56,7 +56,7 @@ $roles = getAllRoles();
                                 Choose File
                                 <input type="file" id="profile_picture" name="profile_picture" accept="image/jpeg,image/png,image/jpg,image/gif" class="hidden" onchange="previewProfilePicture(this)">
                             </label>
-                            <button type="button" onclick="removeProfilePicture()" class="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 transition duration-200 w-full sm:w-auto text-center border border-red-200 sm:border-transparent rounded-lg sm:rounded-none">
+                            <button type="button" onclick="removeProfilePicture()" class="cursor-pointer px-4 py-2 text-sm font-medium text-red-700 bg-red-100 border border-red-300 rounded-lg hover:bg-red-200 transition duration-200 w-full sm:w-auto text-center">
                                 Remove
                             </button>
                         </div>

@@ -31,8 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     // 4. Tawagin na natin yung magic function natin sa Document Class
     try {
         $docObj = new Document($pdo);
-        // Ipapasa natin yung $roleName ("SP Secretary", "Plenary", etc.) papunta sa class
-        $result = $docObj->receiveDocument($documentId, $userId, $roleName);
+        
+        // BAGO: Nagdagdag tayo ng 'DCMT_SPSEC_INBOX' para sa Audit Logs
+        $result = $docObj->receiveDocument($documentId, $userId, $roleName, 'DCMT_SPSEC_INBOX');
 
         // 5. Kung success, mag-set ng session flash message para sa Inbox UI
         if ($result['status'] === 'success') {

@@ -1,17 +1,17 @@
 <?php
-$stmt = $pdo->prepare("SELECT document_type_id AS id, document_type_name FROM document_types WHERE status = 'active' ORDER BY document_type_name");
+$stmt = $pdo->prepare("SELECT document_type_id AS id, document_type_name FROM document_types WHERE is_deleted = FALSE AND status = 'active' ORDER BY document_type_name");
 $stmt->execute();
 $documentTypes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $pdo->prepare("SELECT source_type_id AS id, source_type_name FROM source_types WHERE status = 'active' AND is_deleted = 0 ORDER BY source_type_name");
+$stmt = $pdo->prepare("SELECT source_type_id AS id, source_type_name FROM source_types WHERE is_deleted = FALSE AND status = 'active' ORDER BY source_type_name");
 $stmt->execute();
 $sourceTypes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $pdo->prepare("SELECT external_office_id AS id, external_office_name FROM external_offices WHERE status = 'active' ORDER BY external_office_name");
+$stmt = $pdo->prepare("SELECT external_office_id AS id, external_office_name FROM external_offices WHERE is_deleted = FALSE AND status = 'active' ORDER BY external_office_name");
 $stmt->execute();
 $externalOffices = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $pdo->prepare("SELECT hospital_id AS id, hospital_name FROM hospitals WHERE status = 'active' ORDER BY hospital_name");
+$stmt = $pdo->prepare("SELECT hospital_id AS id, hospital_name FROM hospitals WHERE is_deleted = FALSE AND status = 'active' ORDER BY hospital_name");
 $stmt->execute();
 $hospitals = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

@@ -175,8 +175,14 @@ $receivedDocs = getSpReceivedDocuments($userId);
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex items-center gap-2">
-                                                <a href="process_document?id=<?php echo $doc['document_id']; ?>" class="text-gray-500 hover:text-gray-800 p-1 rounded hover:bg-gray-100">
-                                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                                <a href="process_document?id=<?php echo $doc['document_id']; ?>" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-green-700 bg-green-100 hover:bg-green-200 rounded transition duration-150 cursor-pointer">
+                                                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                                                        <path d="M3 3v5h5"/>
+                                                        <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+                                                        <path d="M16 16h5v5"/>
+                                                    </svg>
+                                                    Process
                                                 </a>
                                             </div>
                                         </td>
@@ -207,6 +213,7 @@ $receivedDocs = getSpReceivedDocuments($userId);
 
 <?php include 'modals/receive_document.php'; ?>
 <script src="/PangasinanLIS/src/js/global.js"></script>
+<script src="/PangasinanLIS/src/js/page_transition.js"></script>
 <script>
     // Initialize pagination when page loads
     document.addEventListener('DOMContentLoaded', function () {

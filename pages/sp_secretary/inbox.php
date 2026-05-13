@@ -147,8 +147,12 @@ $inboxDocs = getSPSecretaryInbox();
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex items-center gap-2">
-                                                <button onclick="viewInboxDocument(<?php echo $doc['document_id']; ?>)" class="text-gray-500 hover:text-gray-800 p-1 rounded hover:bg-gray-100" title="View Document">
-                                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                                <button onclick="viewInboxDocument(<?php echo $doc['document_id']; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View Document">
+                                                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                                                        <circle cx="12" cy="12" r="3"/>
+                                                    </svg>
+                                                    View
                                                 </button>
                                             </div>
                                         </td>
@@ -179,6 +183,7 @@ $inboxDocs = getSPSecretaryInbox();
 <?php include 'modals/receive_document.php'; ?>
 <?php include 'modals/view_document.php'; ?>
 <script src="/PangasinanLIS/src/js/global.js"></script>
+<script src="/PangasinanLIS/src/js/page_transition.js"></script>
 <script>
     // Initialize pagination when page loads
     document.addEventListener('DOMContentLoaded', function () {

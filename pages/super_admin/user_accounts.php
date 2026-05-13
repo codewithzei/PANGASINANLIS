@@ -263,13 +263,13 @@ $users = getAllUsersData();
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex items-center gap-2">
-                                                <button onclick="editUser(<?php echo $user['user_account_id']; ?>)"
-                                                    class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50">
-                                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                                <button onclick="editUser(<?php echo $user['user_account_id']; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-blue-600 bg-blue-100 hover:bg-blue-200 rounded transition duration-150 cursor-pointer">
+                                                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                                                         fill="currentColor">
                                                         <path
                                                             d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                                     </svg>
+                                                    Edit
                                                 </button>
                                             </div>
                                         </td>
@@ -303,6 +303,7 @@ $users = getAllUsersData();
 <?php include 'modals/add_user.php'; ?>
 <?php include 'modals/edit_user.php'; ?>
 <script src="/PangasinanLIS/src/js/global.js"></script>
+<script src="/PangasinanLIS/src/js/page_transition.js"></script>
 <script>
     function editUser(id) {
         fetch('../../includes/actions_super_admin/get_user.php?id=' + id)

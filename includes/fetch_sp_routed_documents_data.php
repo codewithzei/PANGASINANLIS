@@ -36,7 +36,7 @@ function getAllRoutedDocuments($userId, $tab = 'ongoing') {
             $query .= " AND ds.document_status_name IN (
                 'Pending', 'Under Processing', 'Referred', 'Remanded', 
                 'Returned to Plenary', 'For Committee Report', 'Lay on the Table', 
-                'Deferred', 'For Opinion'
+                'Deferred', 'For Opinion', 'For Calendar', 'On Going'
             )";
         } elseif ($tab === 'completed') {
             $query .= " AND ds.document_status_name IN ('Approved', 'Noted', 'Completed')";

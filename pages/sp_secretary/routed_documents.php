@@ -2,6 +2,7 @@
 session_start();
 include '../../components/header.php';
 include '../../includes/fetch_sp_routed_documents_data.php'; // Include the fetch file
+require_once '../../includes/badges.php';
 
 // Kunin ang ID ng naka-login na user
 $userId = $_SESSION['user_id'] ?? 0; 
@@ -10,20 +11,6 @@ $userId = $_SESSION['user_id'] ?? 0;
 $ongoingDocs = getAllRoutedDocuments($userId, 'ongoing');
 $completedDocs = getAllRoutedDocuments($userId, 'completed');
 $withdrawnDocs = getAllRoutedDocuments($userId, 'withdrawn');
-
-// Helper function para sa kulay ng status badge
-function getStatusBadgeClass($statusName) {
-    $status = strtolower(trim($statusName));
-    if (in_array($status, ['approved', 'noted'])) {
-        return 'bg-green-100 text-green-800 border-green-200';
-    } elseif ($status === 'withdrawn') {
-        return 'bg-red-100 text-red-800 border-red-200';
-    } elseif (in_array($status, ['pending', 'under processing', 'referred'])) {
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    } else {
-        return 'bg-blue-100 text-blue-800 border-blue-200'; // Default / Processing
-    }
-}
 ?>
 
 <div class="">
@@ -171,8 +158,12 @@ function getStatusBadgeClass($statusName) {
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <button onclick="viewDocument(<?php echo $doc['document_id']; ?>)" class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50" title="View Document">
-                                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            <button onclick="viewDocument(<?php echo $doc['document_id']; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View Document">
+                                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                                                    <circle cx="12" cy="12" r="3"/>
+                                                </svg>
+                                                View
                                             </button>
                                         </td>
                                     </tr>
@@ -277,8 +268,12 @@ function getStatusBadgeClass($statusName) {
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <button onclick="viewDocument(<?php echo $doc['document_id']; ?>)" class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50" title="View Document">
-                                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            <button onclick="viewDocument(<?php echo $doc['document_id']; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View Document">
+                                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                                                    <circle cx="12" cy="12" r="3"/>
+                                                </svg>
+                                                View
                                             </button>
                                         </td>
                                     </tr>
@@ -383,8 +378,12 @@ function getStatusBadgeClass($statusName) {
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <button onclick="viewDocument(<?php echo $doc['document_id']; ?>)" class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50" title="View Document">
-                                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            <button onclick="viewDocument(<?php echo $doc['document_id']; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View Document">
+                                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                                                    <circle cx="12" cy="12" r="3"/>
+                                                </svg>
+                                                View
                                             </button>
                                         </td>
                                     </tr>
@@ -404,7 +403,9 @@ function getStatusBadgeClass($statusName) {
 </div>
 
 
+
 <script src="/PangasinanLIS/src/js/global.js"></script>
+<script src="/PangasinanLIS/src/js/page_transition.js"></script>
 <script>
     function switchTab(btn) {
         // Deactivate all tab buttons
@@ -442,11 +443,8 @@ function getStatusBadgeClass($statusName) {
         if (mgr) mgr.init();
     }
 
-    // Para sa action button kapag viniew yung document
     function viewDocument(documentId) {
-        console.log("Viewing document ID:", documentId);
-        // Dito natin idadagdag yung AJAX logic para sa View Modal
-        // openModal('view-document-modal'); 
+        window.location.href = 'view_document?id=' + documentId;
     }
 
     // Initialize pagination when page loads

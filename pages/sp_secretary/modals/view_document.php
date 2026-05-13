@@ -163,15 +163,24 @@
                 statusEl.textContent = statusName;
 
                 const statusMap = {
-                    'pending' : 'bg-yellow-100 text-yellow-800',
-                    'received': 'bg-green-100  text-green-800',
-                    'approved': 'bg-blue-100   text-blue-800',
-                    'rejected': 'bg-red-100    text-red-800',
-                    'noted'   : 'bg-purple-100 text-purple-800',
+                    'pending': 'bg-amber-100 text-amber-800 border-amber-200',
+                    'approved': 'bg-green-100 text-green-800 border-green-200',
+                    'withdrawn': 'bg-gray-200 text-gray-800 border-gray-300',
+                    'deferred': 'bg-orange-100 text-orange-800 border-orange-200',
+                    'noted': 'bg-slate-100 text-slate-700 border-slate-200',
+                    'under processing': 'bg-sky-100 text-sky-800 border-sky-200',
+                    'lay on the table': 'bg-slate-200 text-slate-800 border-slate-300',
+                    'referred': 'bg-indigo-100 text-indigo-800 border-indigo-200',
+                    'remanded': 'bg-red-100 text-red-800 border-red-200',
+                    'returned to plenary': 'bg-violet-100 text-violet-800 border-violet-200',
+                    'for committee report': 'bg-cyan-100 text-cyan-800 border-cyan-200',
+                    'for opinion': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+                    'for calendar': 'bg-pink-100 text-pink-800 border-pink-200',
+                    'on going': 'bg-teal-100 text-teal-800 border-teal-200'
                 };
-                const badgeClass = statusMap[statusName.toLowerCase()] || 'bg-gray-100 text-gray-700';
-                statusEl.className = 'inline-block text-xs font-semibold px-2.5 py-1 rounded-full ' + badgeClass;
 
+                const badgeClass = statusMap[statusName.toLowerCase()] || 'bg-blue-100 text-blue-800 border-blue-200';
+                statusEl.className = 'inline-block text-xs font-semibold px-2.5 py-1 rounded-full border ' + badgeClass;
                 // ── Date ───────────────────────────────────────────────────
                 const dateObj = new Date(doc.created_at);
                 document.getElementById('view-date').textContent = dateObj.toLocaleDateString('en-US', {

@@ -151,6 +151,44 @@ function toggleEmptyState(tableBodyId = 'tableBody', show = false, options = {})
     tableBody.appendChild(emptyStateRow);
 }
 
+/**
+ * Same visual pattern as toggleEmptyState, for a block container (e.g. card list, not tbody).
+ * Injected node uses classes empty-state-block and empty-state so it can be removed on re-run.
+ */
+function toggleEmptyStateContainer(containerId = '', show = false, options = {}) {
+    const root = document.getElementById(containerId);
+    if (!root) return;
+
+    const existing = root.querySelector('.empty-state-block');
+    if (existing) {
+        existing.remove();
+    }
+
+    if (!show) return;
+
+    const config = {
+        title: options.title || 'No data found',
+        subtitle: options.subtitle || 'Add your first data to get started',
+        icon: options.icon || 'M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+    };
+
+    const block = document.createElement('div');
+    block.className = 'empty-state-block empty-state';
+    block.innerHTML = `
+        <div class="px-6 py-8 text-center text-gray-500">
+            <div class="flex flex-col items-center justify-center">
+                <svg class="h-12 w-12 text-gray-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${config.icon}" />
+                </svg>
+                <p class="text-lg font-medium">${config.title}</p>
+                <p class="text-sm mt-1">${config.subtitle}</p>
+            </div>
+        </div>
+    `;
+
+    root.appendChild(block);
+}
+
 // Search functionality
 function filterTable() {
     const input = document.getElementById('searchInput');
@@ -445,6 +483,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (mainContent) {
                     mainContent.classList.remove('main-collapsed');
                 }
+                // I-recalculate ang maxHeight ng open na dataManagementMenu
+                // pagkatapos matapos ang sidebar transition — walang delay
+                sidebar.addEventListener('transitionend', function onExpand(e) {
+                    if (e.propertyName !== 'width') return;
+                    sidebar.removeEventListener('transitionend', onExpand);
+                    const menu = document.getElementById('dataManagementMenu');
+                    if (menu && menu.style.maxHeight && menu.style.maxHeight !== '0px') {
+                        menu.style.maxHeight = menu.scrollHeight + 'px';
+                    }
+                });
             }
         }
     });

@@ -121,6 +121,7 @@
 
   </div>
 
+  <script src="/PangasinanLIS/src/js/page_transition.js"></script>
   <script>
     function togglePassword() {
       const input = document.getElementById('passwordInput');

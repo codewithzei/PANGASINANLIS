@@ -151,6 +151,17 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
     }
 
     /* Collapsed submenu: icon-only rows, perfectly centered in the 4rem rail */
+    #sidebar.sidebar-collapsed #dataManagementBtn {
+        justify-content: center !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    #sidebar.sidebar-collapsed #dataManagementBtn .nav-label,
+    #sidebar.sidebar-collapsed #dataManagementBtn .dropdown-arrow {
+        display: none !important;
+    }
+
     #sidebar.sidebar-collapsed #dataManagementMenu {
         background: transparent !important;
         border: none !important;
@@ -754,22 +765,13 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
             <?php elseif ($roleName === 'Committee' || $roleName === 'Committee'): ?>
             <!-- ADMIN SIDEBAR -->
             <div class="nav-section text-[#0033A1] text-xs font-bold px-2 mt-6 mb-1">DOCUMENT MANAGEMENT</div>
-            <a href="/PangasinanLIS/pages/sp_secretary/inbox" data-tooltip="Inbox"
+            <a href="/PangasinanLIS/pages/committee/inbox" data-tooltip="Inbox"
                 class="relative flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
                 <span class="mr-2 shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-inbox-icon lucide-inbox"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
                 </span>
                 <span class="nav-label flex-1">Inbox</span>
             </a>
-
-            <!-- RECEIVED DOCUMENTS LINK WITH BADGE -->
-            <!-- <a href="/PangasinanLIS/pages/sp_secretary/received_documents" data-tooltip="Received Documents"
-                class="relative flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
-                <span class="mr-2 shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-check-icon lucide-file-check"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="m9 15 2 2 4-4"/></svg>
-                </span>
-                <span class="nav-label flex-1">Received Documents</span>
-            </a> -->
 
             <a href="/PangasinanLIS/pages/committee/referred_documents" data-tooltip="Referred Documents"
                 class="relative flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
@@ -858,6 +860,80 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
                 </span>
                 <span class="nav-label">Account Settings</span>
             </a>
+
+            <div class="relative group/data">
+                <button id="dataManagementBtn" data-tooltip="Data Management"
+                    class="w-full flex items-center px-2 py-2 mt-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all focus:outline-none">
+                    <span class="mr-2 shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <ellipse cx="12" cy="5" rx="9" ry="3" />
+                            <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+                            <path d="M3 12A9 3 0 0 0 21 12" />
+                        </svg>
+                    </span>
+                    <span class="nav-label flex-1 text-left">Data Management</span>
+                    <svg id="arrowIcon" class="dropdown-arrow w-4 h-4 ml-1 transition-transform" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+
+                <!-- Accordion submenu (expanded sidebar) -->
+                <div id="dataManagementMenu"
+                    class="max-h-0 overflow-hidden bg-gray-50 border-[#E2F0FF] space-y-1 transition-all duration-300 ease-in-out">
+                    <a href="/PangasinanLIS/pages/committee/opinion_offices" data-tooltip="Opinion Offices"
+                        class="flex items-center px-2 py-2 mt-2 ml-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-xs font-semibold rounded-sm transition-all group">
+                        <span class="mr-2 shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M10 12h4" />
+                                <path d="M10 8h4" />
+                                <path d="M14 21v-3a2 2 0 0 0-4 0v3" />
+                                <path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" />
+                                <path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" />
+                            </svg>
+                        </span>
+                        <span class="nav-label">Opinion Offices</span>
+                    </a>
+
+                    <a href="/PangasinanLIS/pages/committee/opinion_statuses" data-tooltip="Opinion Status"
+                        class="flex items-center px-2 py-2 mt-2 ml-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-xs font-semibold rounded-sm transition-all group">
+                        <span class="mr-2 shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M16 22h2a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v2.85" />
+                                <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+                                <path d="M8 14v2.2l1.6 1" />
+                                <circle cx="8" cy="16" r="6" />
+                            </svg>
+                        </span>
+                        <span class="nav-label">Opinion Status</span>
+                    </a>
+                </div>
+            </div>
+
+
+            <script>
+                (function () {
+                    const btn   = document.getElementById('dataManagementBtn');
+                    const menu  = document.getElementById('dataManagementMenu');
+                    const arrow = document.getElementById('arrowIcon');
+
+                    if (!btn) return;
+
+                    btn.addEventListener('click', function () {
+                        if (menu.style.maxHeight && menu.style.maxHeight !== '0px') {
+                            menu.style.maxHeight = '0px';
+                            arrow.style.transform = 'rotate(0deg)';
+                        } else {
+                            menu.style.maxHeight = menu.scrollHeight + 'px';
+                            arrow.style.transform = 'rotate(180deg)';
+                        }
+                    });
+                })();
+            </script>
         <?php endif; ?>
 
     </nav>

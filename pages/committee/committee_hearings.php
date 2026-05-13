@@ -1,15 +1,32 @@
 <?php
 session_start();
+include '../../includes/fetch_committee_hearings_data.php'; // I-include ang bagong file
 include '../../components/header.php';
+require_once '../../includes/badges.php';
+
+$userId = $_SESSION['user_id'] ?? null;
+
+if (!$userId) {
+    header('Location: /PangasinanLIS/pages/auth/login');
+    exit;
+}
+
+// FETCH LAHAT NG TABS DITO:
+$allHearings       = getAllHearings($userId);
+$scheduledHearings = getScheduledHearings($userId);
+$approvedHearings  = getApprovedHearings($userId);
+$deferredHearings  = getDeferredHearings($userId);
+$remandedHearings  = getRemandedHearings($userId);
+$withdrawnHearings = getWithdrawnHearings($userId);
 ?>
 <style>
-    /* Custom class para itago ang scrollbar */
+    /* Custom class to hide the scrollbar */
     .hide-scrollbar::-webkit-scrollbar {
-        display: none; /* Para sa Chrome, Safari at Opera */
+        display: none; /* For Chrome, Safari, and Opera */
     }
     .hide-scrollbar {
-        -ms-overflow-style: none;  /* Para sa IE at Edge */
-        scrollbar-width: none;  /* Para sa Firefox */
+        -ms-overflow-style: none;  /* For IE and Edge */
+        scrollbar-width: none;  /* For Firefox */
     }
 </style>
 
@@ -56,11 +73,7 @@ include '../../components/header.php';
             <!-- TABS NAVIGATION -->
             <div class="bg-white rounded-lg shadow-sm border border-slate-200 mb-2">
                 <div class="p-4 border-b border-slate-200">
-                    <!-- Idinagdag: overflow-x-auto, flex-nowrap -->
-                    <!-- Tip: Pwede mong lagyan ng 'scrollbar-hide' class kung may plugin ka, o hayaan lang para sa default scrollbar -->
                     <div class="flex space-x-1 overflow-x-auto flex-nowrap pb-1 hide-scrollbar">
-                        
-                        <!-- Idinagdag sa bawat button: shrink-0 at whitespace-nowrap -->
                         <button class="tab-button active shrink-0 whitespace-nowrap px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600" data-tab="tab-all-hearings" onclick="switchTab(this)">
                             All Hearings
                         </button>
@@ -79,200 +92,108 @@ include '../../components/header.php';
                         <button class="tab-button shrink-0 whitespace-nowrap px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 border-b-2 border-transparent" data-tab="tab-withdrawn" onclick="switchTab(this)">
                             Withdrawn
                         </button>
-                        
                     </div>
                 </div>
             </div>
 
             <!-- =====================================
-                 TAB 1: REFERRED
+                 TAB 1: ALL HEARINGS
             ====================================== -->
-            <div id="tab-referred" class="tab-panel bg-white rounded-lg shadow-sm border border-slate-200">
+            <div id="tab-all-hearings" class="tab-panel bg-white rounded-lg shadow-sm border border-slate-200">
                 <div class="p-6 border-b border-slate-200">
                     <div class="flex flex-col gap-4">
                         <div>
-                            <h2 class="text-xl font-bold text-gray-800">Referred Documents</h2>
-                            <p class="text-sm text-gray-600 mt-1">Manage all legislative documents referred to the committee</p>
-                        </div>
-                        <div class="flex items-center gap-3 w-full">
-                            <div class="relative flex-1">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                                <input type="text" id="searchInput-referred" placeholder="Search..."
-                                    class="pl-10 pr-4 py-2 border border-slate-300 rounded-lg outline-none w-full focus:ring-2 focus:ring-[#0033A1] focus:border-transparent"
-                                    oninput="filterTabTable('tableBody-referred', this.value)">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <!-- table-fixed para pantay-pantay ang hatian -->
-                    <table id="table-referred" class="min-w-full divide-y divide-slate-200 table-fixed w-full">
-                        <thead class="bg-slate-50">
-                            <tr>
-                                <th scope="col" class="w-[15%] px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer" onclick="sortTable(0, 'table-referred')">
-                                    <div class="flex items-center gap-2">Tracking No.
-                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                                    </div>
-                                </th>
-                                <th scope="col" class="w-[25%] px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer" onclick="sortTable(1, 'table-referred')">
-                                    <div class="flex items-center gap-2">Subject Matter
-                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                                    </div>
-                                </th>
-                                <th scope="col" class="w-[20%] px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer" onclick="sortTable(2, 'table-referred')">
-                                    <div class="flex items-center gap-2">Document Type
-                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                                    </div>
-                                </th>
-                                <th scope="col" class="w-[15%] px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer" onclick="sortTable(3, 'table-referred')">
-                                    <div class="flex items-center gap-2">Division
-                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                                    </div>
-                                </th>
-                                <th scope="col" class="w-[15%] px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer" onclick="sortTable(4, 'table-referred')">
-                                    <div class="flex items-center gap-2">Status
-                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                                    </div>
-                                </th>
-                                <th scope="col" class="w-[10%] px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-slate-200" id="tableBody-referred">
-                            <?php if (isset($ongoingDocs['error'])): ?>
-                                <tr>
-                                    <td colspan="6" class="px-6 py-8 text-center text-red-600">
-                                        <?php echo htmlspecialchars($ongoingDocs['error']); ?>
-                                    </td>
-                                </tr>
-                            <?php elseif (!empty($ongoingDocs)): ?>
-                                <?php foreach ($ongoingDocs as $doc): ?>
-                                    <tr class="hover:bg-slate-50 transition-colors duration-150">
-                                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm font-bold text-[#0033A1]">
-                                            <?php echo htmlspecialchars($doc['tracking_number']); ?>
-                                        </td>
-                                        <td class="px-3 sm:px-6 py-3 sm:py-4 text-sm text-gray-700 whitespace-normal wrap-break-word">
-                                            <?php echo htmlspecialchars($doc['subject_matter']); ?>
-                                        </td>
-                                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-700">
-                                            <?php echo htmlspecialchars($doc['document_type_name'] ?? 'N/A'); ?>
-                                        </td>
-                                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-700">
-                                            <?php echo htmlspecialchars($doc['division_name'] ?? 'Not Routed'); ?>
-                                        </td>
-                                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                                            <?php $bgClass = getStatusBadgeClass($doc['status_name']); ?>
-                                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border <?php echo $bgClass; ?>">
-                                                <?php echo htmlspecialchars($doc['status_name']); ?>
-                                            </span>
-                                        </td>
-                                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm font-medium">
-                                            <button onclick="viewDocument(<?php echo $doc['document_id']; ?>)" class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50" title="View Document">
-                                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="px-4 sm:px-6 py-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div id="paginationInfo-referred" class="text-sm text-gray-700">Showing <span class="font-medium">0</span> to <span class="font-medium">0</span> of <span class="font-medium">0</span> results</div>
-                    <div id="paginationContainer-referred" class="flex items-center space-x-2"></div>
-                </div>
-            </div>
-
-            <!-- =====================================
-                 TAB 2: COMPLETED
-            ====================================== -->
-            <div id="tab-completed" class="tab-panel bg-white rounded-lg shadow-sm border border-slate-200" style="display:none;">
-                <div class="p-6 border-b border-slate-200">
-                    <div class="flex flex-col gap-4">
-                        <div>
-                            <h2 class="text-xl font-bold text-gray-800">Completed Documents</h2>
-                            <p class="text-sm text-gray-600 mt-1">View completed and finalized documents</p>
+                            <h2 class="text-xl font-bold text-gray-800">All Hearings</h2>
+                            <p class="text-sm text-gray-600 mt-1">Manage all legislative documents for hearings</p>
                         </div>
                         <div class="flex items-center gap-3 w-full">
                             <div class="relative flex-1">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
                                 </div>
-                                <input type="text" id="searchInput-completed" placeholder="Search..."
+                                <input type="text" id="searchInput-all-hearings" placeholder="Search..."
                                     class="pl-10 pr-4 py-2 border border-slate-300 rounded-lg outline-none w-full focus:ring-2 focus:ring-[#0033A1] focus:border-transparent"
-                                    oninput="filterTabTable('tableBody-completed', this.value)">
+                                    oninput="filterTabTable('tableBody-all-hearings', this.value)">
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table id="table-completed" class="min-w-full divide-y divide-slate-200 table-fixed w-full">
+                <div class="overflow-x-auto w-full">
+                    <!-- BAGO: min-w-max para auto-adjust ang width base sa content, at hihinga nang tama -->
+                    <table id="table-all-hearings" class="w-full min-w-max divide-y divide-slate-200 text-left">
                         <thead class="bg-slate-50">
                             <tr>
-                                <th scope="col" class="w-[15%] px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer" onclick="sortTable(0, 'table-completed')">
-                                    <div class="flex items-center gap-2">Tracking No.
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(0, 'table-all-hearings')">
+                                    <div class="flex items-center gap-2">Agenda No.
                                         <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                                     </div>
                                 </th>
-                                <th scope="col" class="w-[25%] px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer" onclick="sortTable(1, 'table-completed')">
-                                    <div class="flex items-center gap-2">Subject Matter
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(1, 'table-all-hearings')">
+                                    <div class="flex items-center gap-2">Tracking No.
                                         <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                                     </div>
                                 </th>
-                                <th scope="col" class="w-[20%] px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer" onclick="sortTable(2, 'table-completed')">
-                                    <div class="flex items-center gap-2">Document Type
+                                <!-- BAGO: Fixed width range para sa Subject Matter -->
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer min-w-[300px] max-w-[500px]" onclick="sortTable(2, 'table-all-hearings')">
+                                    <div class="flex items-center gap-2">Subject Matter
                                         <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                                     </div>
                                 </th>
-                                <th scope="col" class="w-[15%] px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer" onclick="sortTable(3, 'table-completed')">
-                                    <div class="flex items-center gap-2">Division
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(3, 'table-all-hearings')">
+                                    <div class="flex items-center gap-2">Date
                                         <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                                     </div>
                                 </th>
-                                <th scope="col" class="w-[15%] px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer" onclick="sortTable(4, 'table-completed')">
-                                    <div class="flex items-center gap-2">Status
+                                <th scope="col" class="px-6 py-4 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(4, 'table-all-hearings')">
+                                    <div class="flex items-center justify-center gap-2">Cycle
                                         <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                                     </div>
                                 </th>
-                                <th scope="col" class="w-[10%] px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Action</th>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(5, 'table-all-hearings')">
+                                    <div class="flex items-center gap-2">Chairperson
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(6, 'table-all-hearings')">
+                                    <div class="flex items-center gap-2">Status
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <!-- BAGO: pr-8 para hindi dikit sa pader ang action -->
+                                <th scope="col" class="px-6 py-4 pr-8 text-xs font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap w-24">Action</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-slate-200" id="tableBody-completed">
-                            <?php if (isset($completedDocs['error'])): ?>
+                        <tbody class="bg-white divide-y divide-slate-200" id="tableBody-all-hearings">
+                            <!-- PHP LOOP DITO PARA SA ALL HEARINGS -->
+                            <?php if (isset($allHearings['error'])): ?>
                                 <tr>
-                                    <td colspan="6" class="px-6 py-8 text-center text-red-600">
-                                        <?php echo htmlspecialchars($completedDocs['error']); ?>
+                                    <td colspan="8" class="px-6 py-8 text-center text-red-600">
+                                        <?php echo htmlspecialchars($allHearings['error']); ?>
                                     </td>
                                 </tr>
-                            <?php elseif (!empty($completedDocs)): ?>
-                                <?php foreach ($completedDocs as $doc): ?>
+                            <?php elseif (!empty($allHearings)): ?>
+                                <?php foreach ($allHearings as $doc): ?>
                                     <tr class="hover:bg-slate-50 transition-colors duration-150">
-                                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm font-bold text-[#0033A1]">
-                                            <?php echo htmlspecialchars($doc['tracking_number']); ?>
-                                        </td>
-                                        <td class="px-3 sm:px-6 py-3 sm:py-4 text-sm text-gray-700 whitespace-normal wrap-break-word">
-                                            <?php echo htmlspecialchars($doc['subject_matter']); ?>
-                                        </td>
-                                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-700">
-                                            <?php echo htmlspecialchars($doc['document_type_name'] ?? 'N/A'); ?>
-                                        </td>
-                                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-700">
-                                            <?php echo htmlspecialchars($doc['division_name'] ?? 'Not Routed'); ?>
-                                        </td>
-                                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                                            <?php $bgClass = getStatusBadgeClass($doc['status_name']); ?>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($doc['agenda_number'] ?? 'N/A'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#0033A1]"><?php echo htmlspecialchars($doc['tracking_number']); ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-700 min-w-[300px] max-w-[500px] whitespace-normal break-words"><?php echo htmlspecialchars($doc['subject_matter']); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($doc['agenda_date'] ?? 'N/A'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center font-medium"><?php echo htmlspecialchars($doc['cycle'] ?? '1'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($doc['chairperson'] ?? 'N/A'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <?php $bgClass = function_exists('getStatusBadgeClass') ? getStatusBadgeClass($doc['status_name']) : 'bg-gray-100 text-gray-800'; ?>
                                             <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border <?php echo $bgClass; ?>">
-                                                <?php echo htmlspecialchars($doc['status_name']); ?>
+                                                <?php echo htmlspecialchars($doc['status_name'] ?? 'N/A'); ?>
                                             </span>
                                         </td>
-                                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm font-medium">
-                                            <button onclick="viewDocument(<?php echo $doc['document_id']; ?>)" class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50" title="View Document">
-                                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        <td class="px-6 py-4 pr-8 whitespace-nowrap text-sm font-medium">
+                                            <button type="button" onclick="viewOpinionDocument(<?php echo (int) $doc['document_id']; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View Document">
+                                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                                                    <circle cx="12" cy="12" r="3"/>
+                                                </svg>
+                                                View
                                             </button>
                                         </td>
                                     </tr>
@@ -282,20 +203,464 @@ include '../../components/header.php';
                     </table>
                 </div>
                 <div class="px-4 sm:px-6 py-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div id="paginationInfo-completed" class="text-sm text-gray-700">Showing <span class="font-medium">0</span> to <span class="font-medium">0</span> of <span class="font-medium">0</span> results</div>
-                    <div id="paginationContainer-completed" class="flex items-center space-x-2"></div>
+                    <div id="paginationInfo-all-hearings" class="text-sm text-gray-700">Showing <span class="font-medium">0</span> to <span class="font-medium">0</span> of <span class="font-medium">0</span> results</div>
+                    <div id="paginationContainer-all-hearings" class="flex items-center space-x-2"></div>
                 </div>
             </div>
 
             <!-- =====================================
-                 TAB 3: WITHDRAWN
+                 TAB 2: SCHEDULED
             ====================================== -->
-            <div id="tab-withdrawn" class="tab-panel bg-white rounded-lg shadow-sm border border-slate-200" style="display:none;">
+            <div id="tab-scheduled" class="tab-panel bg-white rounded-lg shadow-sm border border-slate-200" style="display: none;">
                 <div class="p-6 border-b border-slate-200">
                     <div class="flex flex-col gap-4">
                         <div>
-                            <h2 class="text-xl font-bold text-gray-800">Withdrawn Documents</h2>
-                            <p class="text-sm text-gray-600 mt-1">View withdrawn and cancelled documents</p>
+                            <h2 class="text-xl font-bold text-gray-800">Scheduled Hearings</h2>
+                            <p class="text-sm text-gray-600 mt-1">View documents currently scheduled for hearings</p>
+                        </div>
+                        <div class="flex items-center gap-3 w-full">
+                            <div class="relative flex-1">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
+                                </div>
+                                <input type="text" id="searchInput-scheduled" placeholder="Search..."
+                                    class="pl-10 pr-4 py-2 border border-slate-300 rounded-lg outline-none w-full focus:ring-2 focus:ring-[#0033A1] focus:border-transparent"
+                                    oninput="filterTabTable('tableBody-scheduled', this.value)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto w-full">
+                    <!-- BAGO: min-w-max para auto-adjust ang width base sa content, at hihinga nang tama -->
+                    <table id="table-scheduled" class="w-full min-w-max divide-y divide-slate-200 text-left">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(0, 'table-scheduled')">
+                                    <div class="flex items-center gap-2">Agenda No.
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(1, 'table-scheduled')">
+                                    <div class="flex items-center gap-2">Tracking No.
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <!-- BAGO: Fixed width range para sa Subject Matter -->
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer min-w-[300px] max-w-[500px]" onclick="sortTable(2, 'table-scheduled')">
+                                    <div class="flex items-center gap-2">Subject Matter
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(3, 'table-scheduled')">
+                                    <div class="flex items-center gap-2">Date
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(4, 'table-scheduled')">
+                                    <div class="flex items-center justify-center gap-2">Cycle
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(5, 'table-scheduled')">
+                                    <div class="flex items-center gap-2">Chairperson
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(6, 'table-scheduled')">
+                                    <div class="flex items-center gap-2">Status
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <!-- BAGO: pr-8 para hindi dikit sa pader ang action -->
+                                <th scope="col" class="px-6 py-4 pr-8 text-xs font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap w-24">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-slate-200" id="tableBody-scheduled">
+                            <!-- PHP LOOP DITO PARA SA SCHEDULED HEARINGS -->
+                            <?php if (isset($scheduledHearings['error'])): ?>
+                                <tr>
+                                    <td colspan="8" class="px-6 py-8 text-center text-red-600">
+                                        <?php echo htmlspecialchars($scheduledHearings['error']); ?>
+                                    </td>
+                                </tr>
+                            <?php elseif (!empty($scheduledHearings)): ?>
+                                <?php foreach ($scheduledHearings as $doc): ?>
+                                    <tr class="hover:bg-slate-50 transition-colors duration-150">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($doc['agenda_number'] ?? 'N/A'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#0033A1]"><?php echo htmlspecialchars($doc['tracking_number']); ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-700 min-w-[300px] max-w-[500px] whitespace-normal break-words"><?php echo htmlspecialchars($doc['subject_matter']); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($doc['agenda_date'] ?? 'N/A'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center font-medium"><?php echo htmlspecialchars($doc['cycle'] ?? '1'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($doc['chairperson'] ?? 'N/A'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <?php $bgClass = function_exists('getStatusBadgeClass') ? getStatusBadgeClass($doc['status_name']) : 'bg-gray-100 text-gray-800'; ?>
+                                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border <?php echo $bgClass; ?>">
+                                                <?php echo htmlspecialchars($doc['status_name'] ?? 'N/A'); ?>
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 pr-8 whitespace-nowrap text-sm font-medium">
+                                            <button type="button" onclick="viewOpinionDocument(<?php echo (int) $doc['document_id']; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View Document">
+                                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                                                    <circle cx="12" cy="12" r="3"/>
+                                                </svg>
+                                                View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="px-4 sm:px-6 py-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div id="paginationInfo-scheduled" class="text-sm text-gray-700">Showing <span class="font-medium">0</span> to <span class="font-medium">0</span> of <span class="font-medium">0</span> results</div>
+                    <div id="paginationContainer-scheduled" class="flex items-center space-x-2"></div>
+                </div>
+            </div>
+
+            <!-- =====================================
+                 TAB 3: APPROVED
+            ====================================== -->
+            <div id="tab-approved" class="tab-panel bg-white rounded-lg shadow-sm border border-slate-200" style="display: none;">
+                <div class="p-6 border-b border-slate-200">
+                    <div class="flex flex-col gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-800">Approved Hearings</h2>
+                            <p class="text-sm text-gray-600 mt-1">View documents with approved committee reports</p>
+                        </div>
+                        <div class="flex items-center gap-3 w-full">
+                            <div class="relative flex-1">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
+                                </div>
+                                <input type="text" id="searchInput-approved" placeholder="Search..."
+                                    class="pl-10 pr-4 py-2 border border-slate-300 rounded-lg outline-none w-full focus:ring-2 focus:ring-[#0033A1] focus:border-transparent"
+                                    oninput="filterTabTable('tableBody-approved', this.value)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto w-full">
+                    <!-- BAGO: min-w-max para auto-adjust ang width base sa content, at hihinga nang tama -->
+                    <table id="table-approved" class="w-full min-w-max divide-y divide-slate-200 text-left">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(0, 'table-approved')">
+                                    <div class="flex items-center gap-2">Agenda No.
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(1, 'table-approved')">
+                                    <div class="flex items-center gap-2">Tracking No.
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <!-- BAGO: Fixed width range para sa Subject Matter -->
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer min-w-[300px] max-w-[500px]" onclick="sortTable(2, 'table-approved')">
+                                    <div class="flex items-center gap-2">Subject Matter
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(3, 'table-approved')">
+                                    <div class="flex items-center gap-2">Date
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(4, 'table-approved')">
+                                    <div class="flex items-center justify-center gap-2">Cycle
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(5, 'table-approved')">
+                                    <div class="flex items-center gap-2">Chairperson
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(6, 'table-approved')">
+                                    <div class="flex items-center gap-2">Status
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <!-- BAGO: pr-8 para hindi dikit sa pader ang action -->
+                                <th scope="col" class="px-6 py-4 pr-8 text-xs font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap w-24">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-slate-200" id="tableBody-approved">
+                            <!-- PHP LOOP DITO PARA SA APPROVED HEARINGS -->
+                            <?php if (isset($approvedHearings['error'])): ?>
+                                <tr>
+                                    <td colspan="8" class="px-6 py-8 text-center text-red-600">
+                                        <?php echo htmlspecialchars($approvedHearings['error']); ?>
+                                    </td>
+                                </tr>
+                            <?php elseif (!empty($approvedHearings)): ?>
+                                <?php foreach ($approvedHearings as $doc): ?>
+                                    <tr class="hover:bg-slate-50 transition-colors duration-150">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($doc['agenda_number'] ?? 'N/A'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#0033A1]"><?php echo htmlspecialchars($doc['tracking_number']); ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-700 min-w-[300px] max-w-[500px] whitespace-normal break-words"><?php echo htmlspecialchars($doc['subject_matter']); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($doc['agenda_date'] ?? 'N/A'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center font-medium"><?php echo htmlspecialchars($doc['cycle'] ?? '1'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($doc['chairperson'] ?? 'N/A'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <?php $bgClass = function_exists('getStatusBadgeClass') ? getStatusBadgeClass($doc['status_name']) : 'bg-gray-100 text-gray-800'; ?>
+                                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border <?php echo $bgClass; ?>">
+                                                <?php echo htmlspecialchars($doc['status_name'] ?? 'N/A'); ?>
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 pr-8 whitespace-nowrap text-sm font-medium">
+                                            <button type="button" onclick="viewOpinionDocument(<?php echo (int) $doc['document_id']; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View Document">
+                                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                                                    <circle cx="12" cy="12" r="3"/>
+                                                </svg>
+                                                View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="px-4 sm:px-6 py-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div id="paginationInfo-approved" class="text-sm text-gray-700">Showing <span class="font-medium">0</span> to <span class="font-medium">0</span> of <span class="font-medium">0</span> results</div>
+                    <div id="paginationContainer-approved" class="flex items-center space-x-2"></div>
+                </div>
+            </div>
+
+            <!-- =====================================
+                 TAB 4: DEFERRED
+            ====================================== -->
+            <div id="tab-deferred" class="tab-panel bg-white rounded-lg shadow-sm border border-slate-200" style="display: none;">
+                <div class="p-6 border-b border-slate-200">
+                    <div class="flex flex-col gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-800">Deferred Hearings</h2>
+                            <p class="text-sm text-gray-600 mt-1">View documents that were deferred during committee hearings</p>
+                        </div>
+                        <div class="flex items-center gap-3 w-full">
+                            <div class="relative flex-1">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
+                                </div>
+                                <input type="text" id="searchInput-deferred" placeholder="Search..."
+                                    class="pl-10 pr-4 py-2 border border-slate-300 rounded-lg outline-none w-full focus:ring-2 focus:ring-[#0033A1] focus:border-transparent"
+                                    oninput="filterTabTable('tableBody-deferred', this.value)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto w-full">
+                    <!-- BAGO: min-w-max para auto-adjust ang width base sa content, at hihinga nang tama -->
+                    <table id="table-deferred" class="w-full min-w-max divide-y divide-slate-200 text-left">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(0, 'table-deferred')">
+                                    <div class="flex items-center gap-2">Agenda No.
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(1, 'table-deferred')">
+                                    <div class="flex items-center gap-2">Tracking No.
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <!-- BAGO: Fixed width range para sa Subject Matter -->
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer min-w-[300px] max-w-[500px]" onclick="sortTable(2, 'table-deferred')">
+                                    <div class="flex items-center gap-2">Subject Matter
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(3, 'table-deferred')">
+                                    <div class="flex items-center gap-2">Date
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(4, 'table-deferred')">
+                                    <div class="flex items-center justify-center gap-2">Cycle
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(5, 'table-deferred')">
+                                    <div class="flex items-center gap-2">Chairperson
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(6, 'table-deferred')">
+                                    <div class="flex items-center gap-2">Status
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <!-- BAGO: pr-8 para hindi dikit sa pader ang action -->
+                                <th scope="col" class="px-6 py-4 pr-8 text-xs font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap w-24">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-slate-200" id="tableBody-deferred">
+                            <!-- PHP LOOP DITO PARA SA DEFERRED HEARINGS -->
+                            <?php if (isset($deferredHearings['error'])): ?>
+                                <tr>
+                                    <td colspan="8" class="px-6 py-8 text-center text-red-600">
+                                        <?php echo htmlspecialchars($deferredHearings['error']); ?>
+                                    </td>
+                                </tr>
+                            <?php elseif (!empty($deferredHearings)): ?>
+                                <?php foreach ($deferredHearings as $doc): ?>
+                                    <tr class="hover:bg-slate-50 transition-colors duration-150">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($doc['agenda_number'] ?? 'N/A'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#0033A1]"><?php echo htmlspecialchars($doc['tracking_number']); ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-700 min-w-[300px] max-w-[500px] whitespace-normal break-words"><?php echo htmlspecialchars($doc['subject_matter']); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($doc['agenda_date'] ?? 'N/A'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center font-medium"><?php echo htmlspecialchars($doc['cycle'] ?? '1'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($doc['chairperson'] ?? 'N/A'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <?php $bgClass = function_exists('getStatusBadgeClass') ? getStatusBadgeClass($doc['status_name']) : 'bg-gray-100 text-gray-800'; ?>
+                                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border <?php echo $bgClass; ?>">
+                                                <?php echo htmlspecialchars($doc['status_name'] ?? 'N/A'); ?>
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 pr-8 whitespace-nowrap text-sm font-medium">
+                                            <button type="button" onclick="viewOpinionDocument(<?php echo (int) $doc['document_id']; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View Document">
+                                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                                                    <circle cx="12" cy="12" r="3"/>
+                                                </svg>
+                                                View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="px-4 sm:px-6 py-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div id="paginationInfo-deferred" class="text-sm text-gray-700">Showing <span class="font-medium">0</span> to <span class="font-medium">0</span> of <span class="font-medium">0</span> results</div>
+                    <div id="paginationContainer-deferred" class="flex items-center space-x-2"></div>
+                </div>
+            </div>
+
+            <!-- =====================================
+                 TAB 5: REMANDED
+            ====================================== -->
+            <div id="tab-remanded" class="tab-panel bg-white rounded-lg shadow-sm border border-slate-200" style="display: none;">
+                <div class="p-6 border-b border-slate-200">
+                    <div class="flex flex-col gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-800">Remanded Hearings</h2>
+                            <p class="text-sm text-gray-600 mt-1">View documents remanded back to the committee</p>
+                        </div>
+                        <div class="flex items-center gap-3 w-full">
+                            <div class="relative flex-1">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
+                                </div>
+                                <input type="text" id="searchInput-remanded" placeholder="Search..."
+                                    class="pl-10 pr-4 py-2 border border-slate-300 rounded-lg outline-none w-full focus:ring-2 focus:ring-[#0033A1] focus:border-transparent"
+                                    oninput="filterTabTable('tableBody-remanded', this.value)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto w-full">
+                    <!-- BAGO: min-w-max para auto-adjust ang width base sa content, at hihinga nang tama -->
+                    <table id="table-remanded" class="w-full min-w-max divide-y divide-slate-200 text-left">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(0, 'table-remanded')">
+                                    <div class="flex items-center gap-2">Agenda No.
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(1, 'table-remanded')">
+                                    <div class="flex items-center gap-2">Tracking No.
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <!-- BAGO: Fixed width range para sa Subject Matter -->
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer min-w-[300px] max-w-[500px]" onclick="sortTable(2, 'table-remanded')">
+                                    <div class="flex items-center gap-2">Subject Matter
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(3, 'table-remanded')">
+                                    <div class="flex items-center gap-2">Date
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(4, 'table-remanded')">
+                                    <div class="flex items-center justify-center gap-2">Cycle
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(5, 'table-remanded')">
+                                    <div class="flex items-center gap-2">Chairperson
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(6, 'table-remanded')">
+                                    <div class="flex items-center gap-2">Status
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <!-- BAGO: pr-8 para hindi dikit sa pader ang action -->
+                                <th scope="col" class="px-6 py-4 pr-8 text-xs font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap w-24">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-slate-200" id="tableBody-remanded">
+                            <!-- PHP LOOP DITO PARA SA REMANDED HEARINGS -->
+                            <?php if (isset($remandedHearings['error'])): ?>
+                                <tr>
+                                    <td colspan="8" class="px-6 py-8 text-center text-red-600">
+                                        <?php echo htmlspecialchars($remandedHearings['error']); ?>
+                                    </td>
+                                </tr>
+                            <?php elseif (!empty($remandedHearings)): ?>
+                                <?php foreach ($remandedHearings as $doc): ?>
+                                    <tr class="hover:bg-slate-50 transition-colors duration-150">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($doc['agenda_number'] ?? 'N/A'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#0033A1]"><?php echo htmlspecialchars($doc['tracking_number']); ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-700 min-w-[300px] max-w-[500px] whitespace-normal break-words"><?php echo htmlspecialchars($doc['subject_matter']); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($doc['agenda_date'] ?? 'N/A'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center font-medium"><?php echo htmlspecialchars($doc['cycle'] ?? '1'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($doc['chairperson'] ?? 'N/A'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <?php $bgClass = function_exists('getStatusBadgeClass') ? getStatusBadgeClass($doc['status_name']) : 'bg-gray-100 text-gray-800'; ?>
+                                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border <?php echo $bgClass; ?>">
+                                                <?php echo htmlspecialchars($doc['status_name'] ?? 'N/A'); ?>
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 pr-8 whitespace-nowrap text-sm font-medium">
+                                            <button type="button" onclick="viewOpinionDocument(<?php echo (int) $doc['document_id']; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View Document">
+                                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                                                    <circle cx="12" cy="12" r="3"/>
+                                                </svg>
+                                                View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="px-4 sm:px-6 py-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div id="paginationInfo-remanded" class="text-sm text-gray-700">Showing <span class="font-medium">0</span> to <span class="font-medium">0</span> of <span class="font-medium">0</span> results</div>
+                    <div id="paginationContainer-remanded" class="flex items-center space-x-2"></div>
+                </div>
+            </div>
+
+            <!-- =====================================
+                 TAB 6: WITHDRAWN
+            ====================================== -->
+            <div id="tab-withdrawn" class="tab-panel bg-white rounded-lg shadow-sm border border-slate-200" style="display: none;">
+                <div class="p-6 border-b border-slate-200">
+                    <div class="flex flex-col gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-800">Withdrawn Hearings</h2>
+                            <p class="text-sm text-gray-600 mt-1">View documents withdrawn from the committee</p>
                         </div>
                         <div class="flex items-center gap-3 w-full">
                             <div class="relative flex-1">
@@ -309,70 +674,81 @@ include '../../components/header.php';
                         </div>
                     </div>
                 </div>
-
-                <div class="overflow-x-auto">
-                    <table id="table-withdrawn" class="min-w-full divide-y divide-slate-200 table-fixed w-full">
+                <div class="overflow-x-auto w-full">
+                    <!-- BAGO: min-w-max para auto-adjust ang width base sa content, at hihinga nang tama -->
+                    <table id="table-withdrawn" class="w-full min-w-max divide-y divide-slate-200 text-left">
                         <thead class="bg-slate-50">
                             <tr>
-                                <th scope="col" class="w-[15%] px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer" onclick="sortTable(0, 'table-withdrawn')">
-                                    <div class="flex items-center gap-2">Tracking No.
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(0, 'table-withdrawn')">
+                                    <div class="flex items-center gap-2">Agenda No.
                                         <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                                     </div>
                                 </th>
-                                <th scope="col" class="w-[25%] px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer" onclick="sortTable(1, 'table-withdrawn')">
-                                    <div class="flex items-center gap-2">Subject Matter
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(1, 'table-withdrawn')">
+                                    <div class="flex items-center gap-2">Tracking No.
                                         <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                                     </div>
                                 </th>
-                                <th scope="col" class="w-[20%] px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer" onclick="sortTable(2, 'table-withdrawn')">
-                                    <div class="flex items-center gap-2">Document Type
+                                <!-- BAGO: Fixed width range para sa Subject Matter -->
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer min-w-[300px] max-w-[500px]" onclick="sortTable(2, 'table-withdrawn')">
+                                    <div class="flex items-center gap-2">Subject Matter
                                         <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                                     </div>
                                 </th>
-                                <th scope="col" class="w-[15%] px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer" onclick="sortTable(3, 'table-withdrawn')">
-                                    <div class="flex items-center gap-2">Division
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(3, 'table-withdrawn')">
+                                    <div class="flex items-center gap-2">Date
                                         <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                                     </div>
                                 </th>
-                                <th scope="col" class="w-[15%] px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer" onclick="sortTable(4, 'table-withdrawn')">
-                                    <div class="flex items-center gap-2">Status
+                                <th scope="col" class="px-6 py-4 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(4, 'table-withdrawn')">
+                                    <div class="flex items-center justify-center gap-2">Cycle
                                         <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                                     </div>
                                 </th>
-                                <th scope="col" class="w-[10%] px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Action</th>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(5, 'table-withdrawn')">
+                                    <div class="flex items-center gap-2">Chairperson
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(6, 'table-withdrawn')">
+                                    <div class="flex items-center gap-2">Status
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
+                                <!-- BAGO: pr-8 para hindi dikit sa pader ang action -->
+                                <th scope="col" class="px-6 py-4 pr-8 text-xs font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap w-24">Action</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-slate-200" id="tableBody-withdrawn">
-                            <?php if (isset($withdrawnDocs['error'])): ?>
+                            <!-- PHP LOOP DITO PARA SA WITHDRAWN HEARINGS -->
+                            <?php if (isset($withdrawnHearings['error'])): ?>
                                 <tr>
-                                    <td colspan="6" class="px-6 py-8 text-center text-red-600">
-                                        <?php echo htmlspecialchars($withdrawnDocs['error']); ?>
+                                    <td colspan="8" class="px-6 py-8 text-center text-red-600">
+                                        <?php echo htmlspecialchars($withdrawnHearings['error']); ?>
                                     </td>
                                 </tr>
-                            <?php elseif (!empty($withdrawnDocs)): ?>
-                                <?php foreach ($withdrawnDocs as $doc): ?>
+                            <?php elseif (!empty($withdrawnHearings)): ?>
+                                <?php foreach ($withdrawnHearings as $doc): ?>
                                     <tr class="hover:bg-slate-50 transition-colors duration-150">
-                                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm font-bold text-[#0033A1]">
-                                            <?php echo htmlspecialchars($doc['tracking_number']); ?>
-                                        </td>
-                                        <td class="px-3 sm:px-6 py-3 sm:py-4 text-sm text-gray-700 whitespace-normal wrap-break-word">
-                                            <?php echo htmlspecialchars($doc['subject_matter']); ?>
-                                        </td>
-                                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-700">
-                                            <?php echo htmlspecialchars($doc['document_type_name'] ?? 'N/A'); ?>
-                                        </td>
-                                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-700">
-                                            <?php echo htmlspecialchars($doc['division_name'] ?? 'Not Routed'); ?>
-                                        </td>
-                                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                                            <?php $bgClass = getStatusBadgeClass($doc['status_name']); ?>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($doc['agenda_number'] ?? 'N/A'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#0033A1]"><?php echo htmlspecialchars($doc['tracking_number']); ?></td>
+                                        <td class="px-6 py-4 text-sm text-gray-700 min-w-[300px] max-w-[500px] whitespace-normal break-words"><?php echo htmlspecialchars($doc['subject_matter']); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($doc['agenda_date'] ?? 'N/A'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center font-medium"><?php echo htmlspecialchars($doc['cycle'] ?? '1'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($doc['chairperson'] ?? 'N/A'); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <?php $bgClass = function_exists('getStatusBadgeClass') ? getStatusBadgeClass($doc['status_name']) : 'bg-gray-100 text-gray-800'; ?>
                                             <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border <?php echo $bgClass; ?>">
-                                                <?php echo htmlspecialchars($doc['status_name']); ?>
+                                                <?php echo htmlspecialchars($doc['status_name'] ?? 'N/A'); ?>
                                             </span>
                                         </td>
-                                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm font-medium">
-                                            <button onclick="viewDocument(<?php echo $doc['document_id']; ?>)" class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50" title="View Document">
-                                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        <td class="px-6 py-4 pr-8 whitespace-nowrap text-sm font-medium">
+                                            <button type="button" onclick="viewOpinionDocument(<?php echo (int) $doc['document_id']; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View Document">
+                                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                                                    <circle cx="12" cy="12" r="3"/>
+                                                </svg>
+                                                View
                                             </button>
                                         </td>
                                     </tr>
@@ -386,6 +762,7 @@ include '../../components/header.php';
                     <div id="paginationContainer-withdrawn" class="flex items-center space-x-2"></div>
                 </div>
             </div>
+
         </main>
 
     </div>
@@ -393,6 +770,7 @@ include '../../components/header.php';
 
 
 <script src="/PangasinanLIS/src/js/global.js"></script>
+<script src="/PangasinanLIS/src/js/page_transition.js"></script>
 <script>
     function switchTab(btn) {
         // Deactivate all tab buttons
@@ -441,9 +819,13 @@ include '../../components/header.php';
     document.addEventListener('DOMContentLoaded', function () {
         window.paginationManagers = {};
 
+        // Added all 6 tabs
         const tabs = [
-            { tableBodyId: 'tableBody-referred',   paginationContainerId: 'paginationContainer-referred',   infoDisplayId: 'paginationInfo-referred' },
-            { tableBodyId: 'tableBody-completed', paginationContainerId: 'paginationContainer-completed', infoDisplayId: 'paginationInfo-completed' },
+            { tableBodyId: 'tableBody-all-hearings', paginationContainerId: 'paginationContainer-all-hearings', infoDisplayId: 'paginationInfo-all-hearings' },
+            { tableBodyId: 'tableBody-scheduled', paginationContainerId: 'paginationContainer-scheduled', infoDisplayId: 'paginationInfo-scheduled' },
+            { tableBodyId: 'tableBody-approved', paginationContainerId: 'paginationContainer-approved', infoDisplayId: 'paginationInfo-approved' },
+            { tableBodyId: 'tableBody-deferred', paginationContainerId: 'paginationContainer-deferred', infoDisplayId: 'paginationInfo-deferred' },
+            { tableBodyId: 'tableBody-remanded', paginationContainerId: 'paginationContainer-remanded', infoDisplayId: 'paginationInfo-remanded' },
             { tableBodyId: 'tableBody-withdrawn', paginationContainerId: 'paginationContainer-withdrawn', infoDisplayId: 'paginationInfo-withdrawn' }
         ];
 

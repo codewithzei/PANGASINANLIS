@@ -24,7 +24,6 @@ function getSpReceivedDocuments($userId) {
             LEFT JOIN document_types dt ON d.document_type_id = dt.document_type_id
             LEFT JOIN document_statuses ds ON d.status = ds.document_status_id
             WHERE d.current_owner_user_id = :user_id 
-              AND ds.document_status_name != 'Completed' 
             ORDER BY d.updated_at DESC
         ";
         
@@ -39,9 +38,6 @@ function getSpReceivedDocuments($userId) {
     }
 }
 
-// =========================================================================
-// 2. FUNCTION PARA SA VIEW MODAL (Full Details ng hawak mong document)
-// =========================================================================
 // =========================================================================
 // 2. FUNCTION PARA SA VIEW MODAL (Full Details ng hawak mong document)
 // =========================================================================

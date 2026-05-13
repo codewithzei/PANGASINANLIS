@@ -30,7 +30,7 @@ function getAllRoutedDocuments($tab = 'ongoing') {
             $query .= " AND ds.document_status_name IN (
                 'Pending', 'Under Processing', 'Referred', 'Remanded', 
                 'Returned to Plenary', 'For Committee Report', 'Lay on the Table', 
-                'Deferred', 'For Opinion'
+                'Deferred', 'For Opinion', 'For Calendar', 'On Going'
             )";
         } elseif ($tab === 'completed') {
             $query .= " AND ds.document_status_name IN ('Approved', 'Noted')";
@@ -85,8 +85,32 @@ function getRoutedDocumentById($docId) {
         $stmt = $pdo->prepare($query);
         $stmt->bindParam(':id', $docId, PDO::PARAM_INT);
         $stmt->execute();
-        
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $doc = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($doc) {
+            // Attachments
+            $stmtAttach = $pdo->prepare("SELECT file_name, file_path FROM document_attachments WHERE document_id = :id");
+            $stmtAttach->execute([':id' => $docId]);
+            $doc['attachments'] = $stmtAttach->fetchAll(PDO::FETCH_ASSOC);
+
+            // Formatted source
+            $mainSource = !empty($doc['source_name']) ? $doc['source_name'] : ($doc['source_type_name'] ?? 'N/A');
+            $location = '';
+            if (!empty($doc['muni_city_name'])) {
+                $location = ' (' . $doc['muni_city_name'] . ')';
+            } elseif (!empty($doc['hospital_name'])) {
+                $location = ' - ' . $doc['hospital_name'];
+            } elseif (!empty($doc['external_office_name'])) {
+                if (empty($doc['source_name'])) {
+                    $mainSource = $doc['external_office_name'];
+                } else {
+                    $location = ' - ' . $doc['external_office_name'];
+                }
+            }
+            $doc['formatted_source'] = $mainSource . $location;
+        }
+
+        return $doc;
         
     } catch (PDOException $e) {
         return null;

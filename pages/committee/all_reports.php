@@ -383,6 +383,7 @@ include '../../components/header.php';
 
 
 <script src="/PangasinanLIS/src/js/global.js"></script>
+<script src="/PangasinanLIS/src/js/page_transition.js"></script>
 <script>
     function switchTab(btn) {
         // Deactivate all tab buttons

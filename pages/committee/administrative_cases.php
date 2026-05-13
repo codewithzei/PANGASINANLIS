@@ -368,6 +368,7 @@ include '../../components/header.php';
 <?php include 'modals/route_document.php'; ?>
 
 <script src="/PangasinanLIS/src/js/global.js"></script>
+<script src="/PangasinanLIS/src/js/page_transition.js"></script>
 <script>
     function switchTab(btn) {
         // Deactivate all tab buttons

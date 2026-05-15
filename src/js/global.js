@@ -255,6 +255,38 @@ function closeModal(modalId) {
     }
 }
 
+/**
+ * Reusable toast used by committee pages and SP Secretary pages.
+ * @param {string} message
+ * @param {'success'|'error'} type
+ */
+function showEndorseToast(message, type) {
+    const existing = document.getElementById('endorseToast');
+    if (existing) existing.remove();
+
+    const isSuccess = type === 'success';
+    const toast = document.createElement('div');
+    toast.id = 'endorseToast';
+    toast.className = 'fixed top-5 left-1/2 -translate-x-1/2 z-[999] flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg text-sm font-medium transition-all duration-300 opacity-0';
+    toast.style.cssText = isSuccess
+        ? 'background-color: rgb(220,252,231); color: rgb(20,83,45); border: 1px solid rgb(167,243,208);'
+        : 'background-color: rgb(254,226,226); color: rgb(127,29,29); border: 1px solid rgb(252,165,165);';
+
+    toast.innerHTML = isSuccess
+        ? `<svg class="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span>${message}</span>`
+        : `<svg class="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg><span>${message}</span>`;
+
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+    });
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
 // Close message notification
 function closeMessage() {
     const message = document.getElementById('globalMessage');

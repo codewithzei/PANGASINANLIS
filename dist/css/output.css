@@ -112,7 +112,6 @@
     --spacing: 0.25rem;
     --container-md: 28rem;
     --container-lg: 32rem;
-    --container-xl: 36rem;
     --container-2xl: 42rem;
     --container-3xl: 48rem;
     --text-xs: 0.75rem;
@@ -782,9 +781,6 @@
   }
   .max-w-none {
     max-width: none;
-  }
-  .max-w-xl {
-    max-width: var(--container-xl);
   }
   .min-w-0 {
     min-width: calc(var(--spacing) * 0);
@@ -1956,54 +1952,6 @@
       color: #0033A1;
     }
   }
-  .file\:mr-4 {
-    &::file-selector-button {
-      margin-right: calc(var(--spacing) * 4);
-    }
-  }
-  .file\:rounded-lg {
-    &::file-selector-button {
-      border-radius: var(--radius-lg);
-    }
-  }
-  .file\:border-0 {
-    &::file-selector-button {
-      border-style: var(--tw-border-style);
-      border-width: 0px;
-    }
-  }
-  .file\:bg-slate-100 {
-    &::file-selector-button {
-      background-color: var(--color-slate-100);
-    }
-  }
-  .file\:px-4 {
-    &::file-selector-button {
-      padding-inline: calc(var(--spacing) * 4);
-    }
-  }
-  .file\:py-2 {
-    &::file-selector-button {
-      padding-block: calc(var(--spacing) * 2);
-    }
-  }
-  .file\:text-sm {
-    &::file-selector-button {
-      font-size: var(--text-sm);
-      line-height: var(--tw-leading, var(--text-sm--line-height));
-    }
-  }
-  .file\:font-semibold {
-    &::file-selector-button {
-      --tw-font-weight: var(--font-weight-semibold);
-      font-weight: var(--font-weight-semibold);
-    }
-  }
-  .file\:text-gray-800 {
-    &::file-selector-button {
-      color: var(--color-gray-800);
-    }
-  }
   .placeholder\:text-stone-400 {
     &::placeholder {
       color: var(--color-stone-400);
@@ -2321,15 +2269,6 @@
       @media (hover: hover) {
         --tw-shadow: 0 4px 6px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 2px 4px -2px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
         box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-      }
-    }
-  }
-  .hover\:file\:bg-slate-200 {
-    &:hover {
-      @media (hover: hover) {
-        &::file-selector-button {
-          background-color: var(--color-slate-200);
-        }
       }
     }
   }

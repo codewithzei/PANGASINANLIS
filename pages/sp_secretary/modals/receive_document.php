@@ -1,27 +1,23 @@
-﻿<!-- Receive Document Confirmation Modal -->
+<!-- Receive Document Confirmation Modal -->
 <div id="receive-document-modal" class="hidden">
 
     <!-- Overlay -->
-    <div
-        id="receiveDocumentOverlay"
-        onclick="closeModal('receive-document-modal')"
+    <div id="receiveDocumentOverlay" onclick="closeModal('receive-document-modal')"
         class="fixed inset-0 bg-black/75 z-101 transition-opacity duration-300 cursor-pointer">
     </div>
 
     <!-- Modal Panel -->
-    <div
-        id="receiveDocumentPanel"
+    <div id="receiveDocumentPanel"
         class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-102 w-[calc(100%-2rem)] md:w-full max-w-md bg-white rounded-xl shadow-2xl transition-all duration-300">
 
         <!-- Header -->
         <div class="flex items-center justify-between p-5 border-b border-gray-200">
             <h2 class="text-xl font-semibold text-gray-800">Document Details</h2>
-            <button
-                type="button"
-                onclick="closeModal('receive-document-modal')"
+            <button type="button" onclick="closeModal('receive-document-modal')"
                 class="text-gray-400 hover:text-gray-600 transition duration-200 focus:outline-none cursor-pointer">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
                 </svg>
             </button>
         </div>
@@ -31,8 +27,10 @@
             <!-- Icon -->
             <div class="flex justify-center mb-4">
                 <div class="flex items-center justify-center h-14 w-14 rounded-full bg-blue-100">
-                    <svg class="h-7 w-7 text-[#0033A1]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 6 9 17l-5-5"/>
+                    <svg class="h-7 w-7 text-[#0033A1]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M20 6 9 17l-5-5" />
                     </svg>
                 </div>
             </div>
@@ -61,19 +59,15 @@
 
         <!-- Footer -->
         <div class="flex items-center justify-end gap-3 p-5 border-t border-gray-200 shrink-0 bg-gray-50 rounded-b-lg">
-            <button
-                type="button"
-                onclick="closeModal('receive-document-modal')"
+            <button type="button" onclick="closeModal('receive-document-modal')"
                 class="px-5 py-2.5 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300 cursor-pointer">
                 Cancel
             </button>
-            <button
-                type="button"
-                id="confirmReceiveBtn"
-                onclick="confirmReceiveDocument()"
+            <button type="button" id="confirmReceiveBtn" onclick="confirmReceiveDocument()"
                 class="px-5 py-2.5 text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer  flex items-center gap-2">
-                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 6 9 17l-5-5"/>
+                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 6 9 17l-5-5" />
                 </svg>
                 Receive
             </button>
@@ -132,70 +126,40 @@
             method: 'POST',
             body: formData
         })
-        .then(res => res.json())
-        .then(data => {
-            closeModal('receive-document-modal');
-            if (data.status === 'success') {
-                showToast(data.message || 'Document received successfully.', 'success');
-                // Remove the row from the table after a short delay
-                setTimeout(() => {
-                    const row = document.querySelector(`tr[data-doc-id="${_pendingReceiveDocId}"]`);
-                    if (row) {
-                        row.remove();
-                        if (typeof paginationManager !== 'undefined') {
-                            paginationManager.init();
+            .then(res => res.json())
+            .then(data => {
+                closeModal('receive-document-modal');
+                if (data.status === 'success') {
+                    if (typeof showEndorseToast === 'function') {
+                        showEndorseToast(data.message || 'Document received successfully.', 'success');
+                    }
+                    // Remove the row from the table after a short delay
+                    setTimeout(() => {
+                        const row = document.querySelector(`tr[data-doc-id="${_pendingReceiveDocId}"]`);
+                        if (row) {
+                            row.remove();
+                            if (typeof paginationManager !== 'undefined') {
+                                paginationManager.init();
+                            }
+                        } else {
+                            // Fallback: reload the page
+                            window.location.reload();
                         }
-                    } else {
-                        // Fallback: reload the page
-                        window.location.reload();
+                        _pendingReceiveDocId = null;
+                    }, 800);
+                } else {
+                    if (typeof showEndorseToast === 'function') {
+                        showEndorseToast(data.message || 'An error occurred. Please try again.', 'error');
                     }
                     _pendingReceiveDocId = null;
-                }, 800);
-            } else {
-                showToast(data.message || 'An error occurred. Please try again.', 'error');
+                }
+            })
+            .catch(() => {
+                closeModal('receive-document-modal');
+                if (typeof showEndorseToast === 'function') {
+                    showEndorseToast('Network error. Please try again.', 'error');
+                }
                 _pendingReceiveDocId = null;
-            }
-        })
-        .catch(() => {
-            closeModal('receive-document-modal');
-            showToast('Network error. Please try again.', 'error');
-            _pendingReceiveDocId = null;
-        });
-    }
-
-    /**
-     * Shows a temporary toast notification.
-     * @param {string} message
-     * @param {'success'|'error'} type
-     */
-    function showToast(message, type) {
-        // Remove existing toast if any
-        const existing = document.getElementById('receiveToast');
-        if (existing) existing.remove();
-
-        const isSuccess = type === 'success';
-        const toast = document.createElement('div');
-        toast.id = 'receiveToast';
-        toast.className = 'fixed top-5 left-1/2 -translate-x-1/2 z-[999] flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg text-sm font-medium transition-all duration-300 opacity-0';
-        toast.style.cssText = isSuccess
-            ? 'background-color: rgb(220,252,231); color: rgb(20,83,45); border: 1px solid rgb(167,243,208);'
-            : 'background-color: rgb(254,226,226); color: rgb(127,29,29); border: 1px solid rgb(252,165,165);';
-
-        toast.innerHTML = isSuccess
-            ? `<svg class="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span>${message}</span>`
-            : `<svg class="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg><span>${message}</span>`;
-
-        document.body.appendChild(toast);
-
-        // Animate in
-        requestAnimationFrame(() => {
-            toast.style.opacity = '1';
-        });
-
-        // Auto-dismiss after 4s
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            setTimeout(() => toast.remove(), 300);
-        }, 4000);
+            });
     }
 </script>

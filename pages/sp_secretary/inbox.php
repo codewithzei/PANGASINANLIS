@@ -16,45 +16,7 @@ $inboxDocs = getSPSecretaryInbox();
         ?>
 
         <main class="p-3 sm:p-6">
-            <!-- Global Message Display -->
-            <?php if (isset($_SESSION['receive_status'])): ?>
-                <div id="globalMessage"
-                    class="fixed top-5 left-1/2 -translate-x-1/2 z-9999 w-max max-w-md animate-fade-in shadow-lg rounded-lg"
-                    style="<?php echo $_SESSION['receive_status'] === 'success' ? 'background-color: rgb(220, 252, 231); color: rgb(20, 83, 45); border: 1px solid rgb(167, 243, 208);' : 'background-color: rgb(254, 226, 226); color: rgb(127, 29, 29); border: 1px solid rgb(252, 165, 165);'; ?>">
-                    <div class="flex items-center gap-3 px-6 py-4">
-                        <?php if ($_SESSION['receive_status'] === 'success'): ?>
-                            <svg class="h-5 w-5 shrink-0 text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        <?php else: ?>
-                            <svg class="h-5 w-5 shrink-0 text-red-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        <?php endif; ?>
-                        <span
-                            class="text-sm font-medium"><?php echo htmlspecialchars($_SESSION['receive_message']); ?></span>
-                        <button onclick="closeMessage()" class="text-current opacity-70 hover:opacity-100 transition ml-2">
-                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <?php
-                // Clear session data after displaying
-                unset($_SESSION['receive_status']);
-                unset($_SESSION['receive_message']);
-                ?>
-            <?php endif; ?>
-
+            
             <div class="bg-white rounded-lg shadow-sm border border-slate-200">
             <!-- Header with Title -->
                 <div class="p-6 border-b border-slate-200">
@@ -116,23 +78,30 @@ $inboxDocs = getSPSecretaryInbox();
                         </thead>
                         <tbody class="bg-white divide-y divide-slate-200" id="tableBody">
                             <?php if (isset($inboxDocs['error'])): ?>
-                                <tr>
-                                    <!-- Ginawang colspan="5" para sakop lahat ng columns -->
+                                <tr class="empty-state">
                                     <td colspan="5" class="px-6 py-8 text-center text-red-600">
                                         <?php echo htmlspecialchars($inboxDocs['error']); ?>
                                     </td>
                                 </tr>
                             <?php elseif (empty($inboxDocs)): ?>
-                                <!-- Empty state will be added by JavaScript -->
+                                <tr class="empty-state-row empty-state">
+                                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                                        <div class="flex flex-col items-center justify-center">
+                                            <svg class="h-12 w-12 text-gray-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <p class="text-lg font-medium">No data found</p>
+                                            <p class="text-sm mt-1">Add your first data to get started</p>
+                                        </div>
+                                    </td>
+                                </tr>
                             <?php else: ?>
                                 <?php foreach ($inboxDocs as $doc): ?>
                                     <tr class="hover:bg-slate-50 transition-colors duration-150" data-doc-id="<?php echo $doc['document_id']; ?>">
-                                        <!-- LAHAT ay naging px-6 py-4 para pantay sa Header -->
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#0033A1]">
                                             <?php echo htmlspecialchars($doc['tracking_number']); ?>
                                         </td>
                                         
-                                        <!-- Pwedeng mag-break ang Subject Matter pero may min-width na 250px para sa mobile -->
                                         <td class="px-6 py-4 text-sm text-gray-700 whitespace-normal break-words min-w-[250px]">
                                             <?php echo htmlspecialchars($doc['subject_matter']); ?>
                                         </td>
@@ -185,28 +154,25 @@ $inboxDocs = getSPSecretaryInbox();
 <script src="/PangasinanLIS/src/js/global.js"></script>
 <script src="/PangasinanLIS/src/js/page_transition.js"></script>
 <script>
-    // Initialize pagination when page loads
     document.addEventListener('DOMContentLoaded', function () {
-        paginationManager = new PaginationManager({
-            itemsPerPage: 10,
-            tableBodyId: 'tableBody',
-            paginationContainerId: 'paginationContainer',
-            infoDisplayId: 'paginationInfo'
-        });
-        paginationManager.init();
-
-        // Show empty state if no data initially
-        const tableBody = document.getElementById('tableBody');
-        const rows = tableBody.querySelectorAll('tr:not(.empty-state)');
-        if (rows.length === 0) {
-            toggleEmptyState('tableBody', true, {
-                title: "No data found",
-                subtitle: "Add your first data to get started"
-            });
-        }
+    paginationManager = new PaginationManager({
+        itemsPerPage: 10,
+        tableBodyId: 'tableBody',
+        paginationContainerId: 'paginationContainer',
+        infoDisplayId: 'paginationInfo'
     });
+    paginationManager.init();
 
-
+    // Suriin AFTER ng init()
+    const tableBody = document.getElementById('tableBody');
+    const rows = tableBody.querySelectorAll('tr:not(.empty-state)');
+    if (rows.length === 0) {
+        toggleEmptyState('tableBody', true, {
+            title: "No documents found",
+            subtitle: "No documents awaiting confirmation"
+        });
+    }
+});
 </script>
 
 </body>

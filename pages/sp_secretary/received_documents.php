@@ -27,7 +27,6 @@ $receivedDocs = getSpReceivedDocuments($userId);
         ?>
 
         <main class="p-3 sm:p-6">
-            <!-- Global Message Display -->
             <?php 
     // 1. SALUHIN KUNG ANONG MESSAGE ANG MERON (Route man o Receive)
     $displayStatus = null;
@@ -43,46 +42,6 @@ $receivedDocs = getSpReceivedDocuments($userId);
         unset($_SESSION['receive_status'], $_SESSION['receive_message']);
     }
     ?>
-
-    <!-- 2. I-DISPLAY ANG TOAST KUNG MAY LAMAN YUNG VARIABLE -->
-    <?php if ($displayStatus && $displayMessage): ?>
-        <div id="globalMessage"
-            class="fixed top-5 left-1/2 -translate-x-1/2 z-9999 w-max max-w-md animate-fade-in shadow-lg rounded-lg"
-            style="<?php echo $displayStatus === 'success' ? 'background-color: rgb(220, 252, 231); color: rgb(20, 83, 45); border: 1px solid rgb(167, 243, 208);' : 'background-color: rgb(254, 226, 226); color: rgb(127, 29, 29); border: 1px solid rgb(252, 165, 165);'; ?>">
-            
-            <div class="flex items-center gap-3 px-6 py-4">
-                <?php if ($displayStatus === 'success'): ?>
-                    <svg class="h-5 w-5 shrink-0 text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                <?php else: ?>
-                    <svg class="h-5 w-5 shrink-0 text-red-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                    </svg>
-                <?php endif; ?>
-                
-                <span class="text-sm font-medium"><?php echo htmlspecialchars($displayMessage); ?></span>
-                
-                <button onclick="document.getElementById('globalMessage').remove()" class="text-current opacity-70 hover:opacity-100 transition ml-2 cursor-pointer">
-                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-        <script>
-            // Automatic hide after 4 seconds
-            setTimeout(() => {
-                const msg = document.getElementById('globalMessage');
-                if(msg) {
-                    msg.style.transition = 'opacity 0.3s ease';
-                    msg.style.opacity = '0';
-                    setTimeout(() => msg.remove(), 300);
-                }
-            }, 4000);
-        </script>
-    <?php endif; ?>
 
             <div class="bg-white rounded-lg shadow-sm border border-slate-200">
             <!-- Header with Title -->
@@ -234,6 +193,12 @@ $receivedDocs = getSpReceivedDocuments($userId);
                 subtitle: "Add your first data to get started"
             });
         }
+
+        <?php if ($displayStatus && $displayMessage): ?>
+            if (typeof showEndorseToast === 'function') {
+                showEndorseToast(<?php echo json_encode($displayMessage); ?>, <?php echo json_encode($displayStatus); ?>);
+            }
+        <?php endif; ?>
     });
 </script>
 

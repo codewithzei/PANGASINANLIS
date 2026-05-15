@@ -396,17 +396,25 @@ class Document {
             // 1. Handle File Upload
             $fileName = null;
             if ($fileData && $fileData['error'] === UPLOAD_ERR_OK) {
-                // Gumawa ng unique filename para hindi mag-overwrite
-                $fileExtension = pathinfo($fileData['name'], PATHINFO_EXTENSION);
-                $fileName = 'opinion_' . $documentId . '_' . time() . '.' . $fileExtension;
-                
-                // Siguraduhing may 'uploads/opinions' folder ka
-                $uploadDir = '../../uploads/opinions/';
+                $fileName = $this->sanitizeStoredUploadFilename($fileData['name']);
+
+                // Project-root: assets/uploads/opinions (hindi nakadepende sa PHP getcwd())
+                $uploadDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'opinions' . DIRECTORY_SEPARATOR;
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
                 }
-                
+
                 $destination = $uploadDir . $fileName;
+                if (is_file($destination)) {
+                    $stmtDup = $this->pdo->prepare('SELECT opinion_attachment FROM document_endorsements WHERE endorsement_id = :id LIMIT 1');
+                    $stmtDup->execute([':id' => $endorsementId]);
+                    $dupRow = $stmtDup->fetch(PDO::FETCH_ASSOC);
+                    $currentStored = $dupRow['opinion_attachment'] ?? null;
+                    if ($currentStored !== $fileName) {
+                        throw new Exception('May gumagamit na ng file name na "' . $fileName . '". Palitan ang pangalan ng file bago i-upload.');
+                    }
+                }
+
                 if (!move_uploaded_file($fileData['tmp_name'], $destination)) {
                     throw new Exception("Failed to save the uploaded file to the server.");
                 }
@@ -461,6 +469,23 @@ class Document {
             $this->pdo->rollBack();
             return ['status' => 'error', 'message' => $e->getMessage()];
         }
+    }
+
+    /**
+     * Orihinal na pangalan ng file mula sa client (basename lang), walang path traversal,
+     * tinatanggal ang mga character na bawal sa Windows filesystem.
+     */
+    private function sanitizeStoredUploadFilename(string $originalName): string {
+        $name = basename(str_replace("\0", '', $originalName));
+        $name = trim($name);
+        if ($name === '' || $name === '.' || $name === '..') {
+            throw new Exception('Invalid file name.');
+        }
+        $name = preg_replace('/[\\\\\\/:\\*\\?"<>\\|]/', '_', $name);
+        if ($name === '') {
+            throw new Exception('Invalid file name.');
+        }
+        return $name;
     }
 
     // =========================================================================
@@ -829,6 +854,93 @@ class Document {
         }
     }
 
+    /**
+     * After committee hearing: move document from On Going to Approved / Deferred / Remanded / Withdrawn.
+     */
+    public function completeHearingOutcome($documentId, $userId, $targetStatusId) {
+        $allowedNames = ['Approved', 'Deferred', 'Remanded', 'Withdrawn'];
+
+        try {
+            $this->pdo->beginTransaction();
+
+            $stmt = $this->pdo->prepare("
+                SELECT d.current_owner_user_id, d.status AS current_status_id, ds.document_status_name
+                FROM documents d
+                INNER JOIN document_statuses ds ON d.status = ds.document_status_id
+                WHERE d.document_id = :id
+                LIMIT 1
+            ");
+            $stmt->execute([':id' => $documentId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$row || (int) $row['current_owner_user_id'] !== (int) $userId) {
+                throw new Exception('Document not found or not assigned to you.');
+            }
+            if (($row['document_status_name'] ?? '') !== 'On Going') {
+                throw new Exception('Hearing outcome can only be recorded while the document is On Going.');
+            }
+            $oldStatusId = (int) ($row['current_status_id'] ?? 0);
+
+            $stmtTarget = $this->pdo->prepare("
+                SELECT document_status_id, document_status_name
+                FROM document_statuses
+                WHERE document_status_id = :sid AND COALESCE(is_deleted, 0) = 0
+                LIMIT 1
+            ");
+            $stmtTarget->execute([':sid' => $targetStatusId]);
+            $target = $stmtTarget->fetch(PDO::FETCH_ASSOC);
+            if (!$target) {
+                throw new Exception('Invalid document status selected.');
+            }
+            $newName = $target['document_status_name'] ?? '';
+            if (!in_array($newName, $allowedNames, true)) {
+                throw new Exception('That status is not allowed as a hearing outcome.');
+            }
+
+            $agendaChk = $this->pdo->prepare("SELECT 1 FROM agendas WHERE document_id = :id LIMIT 1");
+            $agendaChk->execute([':id' => $documentId]);
+            if (!$agendaChk->fetchColumn()) {
+                throw new Exception('No agenda is associated with this document.');
+            }
+
+            $upd = $this->pdo->prepare("UPDATE documents SET status = :st, updated_at = CURRENT_TIMESTAMP WHERE document_id = :id AND status = :old_st");
+            $upd->execute([
+                ':st' => (int) $target['document_status_id'],
+                ':id' => $documentId,
+                ':old_st' => $oldStatusId,
+            ]);
+            if ($upd->rowCount() < 1) {
+                throw new Exception('Could not update document status. Please refresh and try again.');
+            }
+
+            // Direktang status update na lang ang ilalagay sa history
+            $histRemarks = "Hearing outcome: On Going → {$newName}.";
+            
+            $stmtHist = $this->pdo->prepare("INSERT INTO document_history (document_id, user_id, action, remarks) VALUES (:doc_id, :user_id, 'HEARING_OUTCOME', :remarks)");
+            $stmtHist->execute([
+                ':doc_id' => $documentId,
+                ':user_id' => $userId,
+                ':remarks' => $histRemarks,
+            ]);
+
+            $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+            $stmtAudit = $this->pdo->prepare("INSERT INTO audit_logs (user_id, action, module, details, log_type, ip_address) VALUES (:user_id, 'UPDATE', 'DCMT_HEARING', :details, 'SUCCESS', :ip_address)");
+            $stmtAudit->execute([
+                ':user_id' => $userId,
+                ':details' => "Hearing outcome for Document ID $documentId: {$newName}.",
+                ':ip_address' => $ipAddress,
+            ]);
+
+            $this->pdo->commit();
+            return ['status' => 'success', 'message' => 'Hearing outcome saved. Document is now ' . $newName . '.'];
+        } catch (Exception $e) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            return ['status' => 'error', 'message' => $e->getMessage()];
+        }
+    }
+
     // =========================================================================
     // FUNCTION PARA MAG-UPLOAD NG COMPLIANCE (With "Final Unfavorable" Logic)
     // =========================================================================
@@ -839,15 +951,24 @@ class Document {
             // 1. Handle File Upload
             $fileName = null;
             if ($fileData && $fileData['error'] === UPLOAD_ERR_OK) {
-                $fileExtension = pathinfo($fileData['name'], PATHINFO_EXTENSION);
-                $fileName = 'compliance_' . $documentId . '_' . time() . '.' . $fileExtension;
-                
-                $uploadDir = '../../uploads/compliances/';
+                $fileName = $this->sanitizeStoredUploadFilename($fileData['name']);
+
+                $uploadDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'compliances' . DIRECTORY_SEPARATOR;
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
                 }
-                
+
                 $destination = $uploadDir . $fileName;
+                if (is_file($destination)) {
+                    $stmtDup = $this->pdo->prepare('SELECT compliance_attachment FROM document_endorsements WHERE endorsement_id = :id LIMIT 1');
+                    $stmtDup->execute([':id' => $endorsementId]);
+                    $dupRow = $stmtDup->fetch(PDO::FETCH_ASSOC);
+                    $currentStored = $dupRow['compliance_attachment'] ?? null;
+                    if ($currentStored !== $fileName) {
+                        throw new Exception('May gumagamit na ng file name na "' . $fileName . '". Palitan ang pangalan ng file bago i-upload.');
+                    }
+                }
+
                 if (!move_uploaded_file($fileData['tmp_name'], $destination)) {
                     throw new Exception("Failed to save the uploaded compliance file.");
                 }

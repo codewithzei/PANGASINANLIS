@@ -188,13 +188,25 @@ $withdrawnHearings = getWithdrawnHearings($userId);
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 pr-8 whitespace-nowrap text-sm font-medium">
-                                            <button type="button" onclick="viewOpinionDocument(<?php echo (int) $doc['document_id']; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View Document">
-                                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-                                                    <circle cx="12" cy="12" r="3"/>
-                                                </svg>
-                                                View
-                                            </button>
+                                            <?php
+                                            $sn = $doc['status_name'] ?? '';
+                                            $did = (int) $doc['document_id'];
+                                            if ($sn === 'On Going'): ?>
+                                                <button type="button" onclick="processHearingDocument(<?php echo $did; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-green-700 bg-green-100 hover:bg-green-200 rounded transition duration-150 cursor-pointer" title="Process Hearing Outcome">
+                                                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                                    </svg>
+                                                    Process
+                                                </button>
+                                            <?php else: ?>
+                                                <button type="button" onclick="viewHearingDocument(<?php echo $did; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View Document">
+                                                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                                                        <circle cx="12" cy="12" r="3"/>
+                                                    </svg>
+                                                    View
+                                                </button>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -299,13 +311,25 @@ $withdrawnHearings = getWithdrawnHearings($userId);
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 pr-8 whitespace-nowrap text-sm font-medium">
-                                            <button type="button" onclick="viewOpinionDocument(<?php echo (int) $doc['document_id']; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View Document">
-                                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-                                                    <circle cx="12" cy="12" r="3"/>
-                                                </svg>
-                                                View
-                                            </button>
+                                            <?php
+                                            $sn = $doc['status_name'] ?? '';
+                                            $did = (int) $doc['document_id'];
+                                            if ($sn === 'On Going'): ?>
+                                                <button type="button" onclick="processHearingDocument(<?php echo $did; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-green-700 bg-green-100 hover:bg-green-200 rounded transition duration-150 cursor-pointer" title="Process Hearing Outcome">
+                                                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                                    </svg>
+                                                    Process
+                                                </button>
+                                            <?php else: ?>
+                                                <button type="button" onclick="viewHearingDocument(<?php echo $did; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View Document">
+                                                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                                                        <circle cx="12" cy="12" r="3"/>
+                                                    </svg>
+                                                    View
+                                                </button>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -342,61 +366,65 @@ $withdrawnHearings = getWithdrawnHearings($userId);
                     </div>
                 </div>
                 <div class="overflow-x-auto w-full">
-                    <!-- BAGO: min-w-max para auto-adjust ang width base sa content, at hihinga nang tama -->
                     <table id="table-approved" class="w-full min-w-max divide-y divide-slate-200 text-left">
                         <thead class="bg-slate-50">
                             <tr>
-                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(0, 'table-approved')">
-                                    <div class="flex items-center gap-2">Agenda No.
-                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                                    </div>
+                                <!-- BAGO: Select All Checkbox (BLUE NA) -->
+                                <th scope="col" class="px-6 py-4 w-12 text-center">
+                                    <input type="checkbox" id="selectAllApproved" onclick="toggleAllApproved(this)" class="w-4 h-4 text-[#0033A1] bg-white border-gray-300 rounded focus:ring-[#0033A1] cursor-pointer">
                                 </th>
                                 <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(1, 'table-approved')">
-                                    <div class="flex items-center gap-2">Tracking No.
+                                    <div class="flex items-center gap-2">Agenda No.
                                         <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                                     </div>
                                 </th>
-                                <!-- BAGO: Fixed width range para sa Subject Matter -->
-                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer min-w-[300px] max-w-[500px]" onclick="sortTable(2, 'table-approved')">
-                                    <div class="flex items-center gap-2">Subject Matter
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(2, 'table-approved')">
+                                    <div class="flex items-center gap-2">Tracking No.
                                         <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                                     </div>
                                 </th>
-                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(3, 'table-approved')">
-                                    <div class="flex items-center gap-2">Date
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer min-w-[300px] max-w-[500px]" onclick="sortTable(3, 'table-approved')">
+                                    <div class="flex items-center gap-2">Subject Matter
                                         <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                                     </div>
                                 </th>
-                                <th scope="col" class="px-6 py-4 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(4, 'table-approved')">
-                                    <div class="flex items-center justify-center gap-2">Cycle
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(4, 'table-approved')">
+                                    <div class="flex items-center gap-2">Date
                                         <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                                     </div>
                                 </th>
-                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(5, 'table-approved')">
-                                    <div class="flex items-center gap-2">Chairperson
+                                <th scope="col" class="px-6 py-4 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(5, 'table-approved')">
+                                    <div class="flex items-center justify-center gap-2">Cycle
                                         <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                                     </div>
                                 </th>
                                 <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(6, 'table-approved')">
-                                    <div class="flex items-center gap-2">Status
-                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    <div class="flex items-center gap-2">Chairperson
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                                     </div>
                                 </th>
-                                <!-- BAGO: pr-8 para hindi dikit sa pader ang action -->
+                                <th scope="col" class="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable(7, 'table-approved')">
+                                    <div class="flex items-center gap-2">Status
+                                        <svg class="h-4 w-4 text-gray-400 sort-icon" data-column="7" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </div>
+                                </th>
                                 <th scope="col" class="px-6 py-4 pr-8 text-xs font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap w-24">Action</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-slate-200" id="tableBody-approved">
-                            <!-- PHP LOOP DITO PARA SA APPROVED HEARINGS -->
                             <?php if (isset($approvedHearings['error'])): ?>
                                 <tr>
-                                    <td colspan="8" class="px-6 py-8 text-center text-red-600">
+                                    <td colspan="9" class="px-6 py-8 text-center text-red-600">
                                         <?php echo htmlspecialchars($approvedHearings['error']); ?>
                                     </td>
                                 </tr>
                             <?php elseif (!empty($approvedHearings)): ?>
                                 <?php foreach ($approvedHearings as $doc): ?>
-                                    <tr class="hover:bg-slate-50 transition-colors duration-150">
+                                    <tr class="hover:bg-slate-50 transition-colors duration-150 group" data-doc-id="<?php echo (int) $doc['document_id']; ?>">
+                                        <!-- BAGO: Row Checkbox (BLUE NA) -->
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            <input type="checkbox" value="<?php echo (int) $doc['document_id']; ?>" class="approved-checkbox w-4 h-4 text-[#0033A1] bg-white border-gray-300 rounded focus:ring-[#0033A1] cursor-pointer" onchange="updateApprovedSelection()">
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars($doc['agenda_number'] ?? 'N/A'); ?></td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#0033A1]"><?php echo htmlspecialchars($doc['tracking_number']); ?></td>
                                         <td class="px-6 py-4 text-sm text-gray-700 min-w-[300px] max-w-[500px] whitespace-normal break-words"><?php echo htmlspecialchars($doc['subject_matter']); ?></td>
@@ -410,7 +438,8 @@ $withdrawnHearings = getWithdrawnHearings($userId);
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 pr-8 whitespace-nowrap text-sm font-medium">
-                                            <button type="button" onclick="viewOpinionDocument(<?php echo (int) $doc['document_id']; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View Document">
+                                            <?php $did = (int) $doc['document_id']; ?>
+                                            <button type="button" onclick="viewHearingDocument(<?php echo $did; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View document">
                                                 <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
                                                     <circle cx="12" cy="12" r="3"/>
@@ -420,10 +449,35 @@ $withdrawnHearings = getWithdrawnHearings($userId);
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
+                            <?php else: ?>
+                                 <tr>
+                                    <td colspan="9" class="px-6 py-8 text-center text-gray-500 italic">
+                                        No approved hearings found.
+                                    </td>
+                                </tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
+
+                <!-- BAGO: Action Banner (BLUE THEME) -->
+                <div id="approvedActionBar" class="hidden mx-4 sm:mx-6 mt-4 mb-2 p-4 bg-blue-50 border border-blue-200 rounded-lg items-center justify-between shadow-sm transition-all duration-300">
+                    <span class="text-[#0033A1] font-semibold text-sm">
+                        <span id="approvedSelectedCount">0</span> document(s) selected
+                    </span>
+                    <div class="flex items-center gap-4">
+                        <button type="button" onclick="clearApprovedSelection()" class="text-slate-500 hover:text-slate-800 text-sm font-medium transition-colors">
+                            Clear Selection
+                        </button>
+                        <button type="button" onclick="processCommitteeReport()" class="bg-[#0033A1] hover:bg-blue-900 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 shadow-sm transition-colors">
+                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                            </svg>
+                            Create Committee Report
+                        </button>
+                    </div>
+                </div>
+
                 <div class="px-4 sm:px-6 py-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div id="paginationInfo-approved" class="text-sm text-gray-700">Showing <span class="font-medium">0</span> to <span class="font-medium">0</span> of <span class="font-medium">0</span> results</div>
                     <div id="paginationContainer-approved" class="flex items-center space-x-2"></div>
@@ -521,7 +575,8 @@ $withdrawnHearings = getWithdrawnHearings($userId);
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 pr-8 whitespace-nowrap text-sm font-medium">
-                                            <button type="button" onclick="viewOpinionDocument(<?php echo (int) $doc['document_id']; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View Document">
+                                            <?php $did = (int) $doc['document_id']; ?>
+                                            <button type="button" onclick="viewHearingDocument(<?php echo $did; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View document">
                                                 <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
                                                     <circle cx="12" cy="12" r="3"/>
@@ -632,7 +687,8 @@ $withdrawnHearings = getWithdrawnHearings($userId);
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 pr-8 whitespace-nowrap text-sm font-medium">
-                                            <button type="button" onclick="viewOpinionDocument(<?php echo (int) $doc['document_id']; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View Document">
+                                            <?php $did = (int) $doc['document_id']; ?>
+                                            <button type="button" onclick="viewHearingDocument(<?php echo $did; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View document">
                                                 <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
                                                     <circle cx="12" cy="12" r="3"/>
@@ -743,7 +799,8 @@ $withdrawnHearings = getWithdrawnHearings($userId);
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 pr-8 whitespace-nowrap text-sm font-medium">
-                                            <button type="button" onclick="viewOpinionDocument(<?php echo (int) $doc['document_id']; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View Document">
+                                            <?php $did = (int) $doc['document_id']; ?>
+                                            <button type="button" onclick="viewHearingDocument(<?php echo $did; ?>)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition duration-150 cursor-pointer" title="View document">
                                                 <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
                                                     <circle cx="12" cy="12" r="3"/>
@@ -808,11 +865,77 @@ $withdrawnHearings = getWithdrawnHearings($userId);
         if (mgr) mgr.init();
     }
 
+    function processHearingDocument(documentId) {
+        window.location.href = 'process_hearing_document?id=' + documentId;
+    }
+
+    function viewHearingDocument(documentId) {
+        window.location.href = 'view_hearing_document?id=' + documentId;
+    }
+
     // Para sa action button kapag viniew yung document
     function viewDocument(documentId) {
         console.log("Viewing document ID:", documentId);
         // Dito natin idadagdag yung AJAX logic para sa View Modal
         // openModal('view-document-modal'); 
+    }
+
+    // ============================================================
+    // MULTI-SELECT LOGIC FOR APPROVED HEARINGS
+    // ============================================================
+
+    function updateApprovedSelection() {
+        const checkboxes = document.querySelectorAll('.approved-checkbox');
+        const selectAll = document.getElementById('selectAllApproved');
+        const actionBar = document.getElementById('approvedActionBar');
+        const countSpan = document.getElementById('approvedSelectedCount');
+
+        let selectedCount = 0;
+        let totalCount = checkboxes.length;
+
+        checkboxes.forEach(cb => {
+            const row = cb.closest('tr');
+            if (cb.checked) {
+                selectedCount++;
+                // BAGO: Lagyan ng LIGHT BLUE na background yung row
+                row.classList.add('bg-blue-50'); 
+                row.classList.remove('bg-white', 'hover:bg-slate-50');
+            } else {
+                // Alisin yung background
+                row.classList.remove('bg-blue-50');
+                row.classList.add('hover:bg-slate-50');
+            }
+        });
+
+        // Update Select All Checkbox state
+        if (selectAll) {
+            selectAll.checked = (selectedCount === totalCount && totalCount > 0);
+            selectAll.indeterminate = (selectedCount > 0 && selectedCount < totalCount);
+        }
+
+        // Ipakita o itago yung floating Action Banner
+        if (selectedCount > 0) {
+            actionBar.classList.remove('hidden');
+            actionBar.classList.add('flex');
+            countSpan.textContent = selectedCount;
+        } else {
+            actionBar.classList.add('hidden');
+            actionBar.classList.remove('flex');
+        }
+    }
+
+    function toggleAllApproved(source) {
+        const checkboxes = document.querySelectorAll('.approved-checkbox');
+        checkboxes.forEach(cb => {
+            cb.checked = source.checked;
+        });
+        updateApprovedSelection();
+    }
+
+    function clearApprovedSelection() {
+        const checkboxes = document.querySelectorAll('.approved-checkbox');
+        checkboxes.forEach(cb => cb.checked = false);
+        updateApprovedSelection();
     }
 
     // Initialize pagination when page loads
@@ -855,6 +978,8 @@ $withdrawnHearings = getWithdrawnHearings($userId);
         });
     });
 </script>
+
+<?php include 'modals/create_committee_reports.php'; ?>
 
 </body>
 </html>

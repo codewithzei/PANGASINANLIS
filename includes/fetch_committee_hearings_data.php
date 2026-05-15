@@ -35,6 +35,14 @@ function fetchHearingsByStatus($userId, $statusFilter = null) {
             $query .= " AND ds.document_status_name = :status_name ";
         }
 
+        // Approved: huwag isama ang dokumentong may committee report na (bridge table)
+        if ($statusFilter === 'Approved') {
+            $query .= " AND NOT EXISTS (
+                SELECT 1 FROM committee_report_documents crd
+                WHERE crd.document_id = d.document_id
+            ) ";
+        }
+
         $query .= " ORDER BY a.created_at DESC";
         
         $stmt = $pdo->prepare($query);
@@ -115,15 +123,18 @@ function getHearingDocumentById($docId, $userId) {
                 ro.routing_option_name AS current_division,
                 cc.communication_category_name,
                 ds.document_status_name AS status_name,
+                a.agenda_id,
                 a.agenda_number, 
                 a.agenda_type, 
                 a.chairperson, 
                 a.agenda_date, 
                 a.agenda_time, 
                 a.venue, 
-                a.notes AS agenda_notes
+                a.notes AS agenda_notes,
+                c.committee_name
             FROM documents d
             INNER JOIN agendas a ON d.document_id = a.document_id
+            LEFT JOIN committees c ON a.committee_id = c.committee_id AND COALESCE(c.is_deleted, 0) = 0
             LEFT JOIN document_types dt ON d.document_type_id = dt.document_type_id
             LEFT JOIN source_types st ON d.source_type_id = st.source_type_id
             LEFT JOIN external_offices eo ON d.source_external_office_id = eo.external_office_id

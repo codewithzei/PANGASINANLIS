@@ -481,6 +481,49 @@ class PaginationManager {
 let paginationManager = null;
 
 
+// ============================================
+// SIDEBAR COUNTER REFRESH (AJAX)
+// ============================================
+
+function updateSidebarBadge(badgeClass, count) {
+    const selector = '.' + badgeClass;
+    const badge = document.querySelector(selector);
+    if (count > 0) {
+        const label = count > 99 ? '99+' : String(count);
+        if (badge) {
+            badge.textContent = label;
+        } else {
+            // Re-create badge if it doesn't exist (count went from 0 to >0)
+            const link = document.querySelector('a[data-badge="' + badgeClass.replace('-count-badge', '') + '"]');
+            if (link) {
+                const span = document.createElement('span');
+                span.className = 'sidebar-badge ' + badgeClass + ' bg-[#0033A1] text-white text-xs font-semibold w-5 h-5 flex items-center justify-center rounded-full ml-auto shadow-sm shrink-0';
+                span.textContent = label;
+                link.appendChild(span);
+            }
+        }
+    } else {
+        if (badge) badge.remove();
+    }
+}
+
+function refreshSidebarCounts() {
+    fetch('/PangasinanLIS/includes/fetch_sidebar_counts.php')
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                if (data.inbox !== undefined) {
+                    updateSidebarBadge('inbox-count-badge', data.inbox);
+                }
+                if (data.received !== undefined) {
+                    updateSidebarBadge('received-count-badge', data.received);
+                }
+            }
+        })
+        .catch(() => {});
+}
+
+
 
 // ============================================
 // SIDEBAR TOGGLE FUNCTIONALITY

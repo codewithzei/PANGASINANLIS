@@ -141,11 +141,23 @@
                             if (typeof paginationManager !== 'undefined') {
                                 paginationManager.init();
                             }
+                            // Show empty state if no data rows remain
+                            const remaining = document.querySelectorAll('#tableBody tr:not(.empty-state)');
+                            if (remaining.length === 0 && typeof toggleEmptyState === 'function') {
+                                toggleEmptyState('tableBody', true, {
+                                    title: 'No documents found',
+                                    subtitle: 'No documents awaiting confirmation'
+                                });
+                            }
                         } else {
                             // Fallback: reload the page
                             window.location.reload();
                         }
                         _pendingReceiveDocId = null;
+                        // Refresh sidebar counters
+                        if (typeof refreshSidebarCounts === 'function') {
+                            refreshSidebarCounts();
+                        }
                     }, 800);
                 } else {
                     if (typeof showEndorseToast === 'function') {

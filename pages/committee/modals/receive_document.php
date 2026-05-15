@@ -1,4 +1,4 @@
-﻿<!-- Receive Document Confirmation Modal -->
+<!-- Receive Document Confirmation Modal -->
 <div id="receive-document-modal" class="hidden">
 
     <!-- Overlay -->
@@ -149,6 +149,14 @@
                         row.remove();
                         if (typeof paginationManager !== 'undefined') {
                             paginationManager.init();
+                        }
+                        // Show empty state if no data rows remain
+                        const remaining = document.querySelectorAll('#tableBody tr:not(.empty-state)');
+                        if (remaining.length === 0 && typeof toggleEmptyState === 'function') {
+                            toggleEmptyState('tableBody', true, {
+                                title: 'No documents found',
+                                subtitle: 'No documents awaiting confirmation'
+                            });
                         }
                     } else {
                         // Fallback: reload the page

@@ -10,32 +10,32 @@ $inboxCount = 0;
 $receivedCount = 0;
 
 // Siguraduhing naka-connect ang DB at may naka-login
-if (isset($pdo) && isset($_SESSION['user_id'])) {
+require_once __DIR__ . '/../includes/db.php';
+
+if (isset($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
-    
+
     try {
         // 1. BILANGIN ANG RECEIVED DOCUMENTS (Hawak mo na)
         $stmtRcv = $pdo->prepare("
-            SELECT COUNT(d.document_id) 
+            SELECT COUNT(d.document_id)
             FROM documents d
-            LEFT JOIN document_statuses ds ON d.status = ds.document_status_id
-            WHERE d.current_owner_user_id = :user_id 
-              AND ds.document_status_name != 'Completed'
+            WHERE d.current_owner_user_id = :user_id
         ");
         $stmtRcv->execute([':user_id' => $userId]);
         $receivedCount = $stmtRcv->fetchColumn();
 
         // 2. BILANGIN ANG INBOX (Papasok pa lang sa inyo, wala pang owner)
-        // PAKI-PALITAN ANG "2" NG TOTOONG ID NG SP SECRETARY SA `routing_options` TABLE MO
-        $myOfficeId = 2; 
+        // SP Secretary = routing_option_id 1
+        $myOfficeId = 1;
 
         $stmtInbox = $pdo->prepare("
-            SELECT COUNT(document_id) 
-            FROM documents 
-            WHERE current_owner_user_id IS NULL 
+            SELECT COUNT(document_id)
+            FROM documents
+            WHERE current_owner_user_id IS NULL
             AND current_routing_option_id = :office_id
         ");
-        $stmtInbox->execute([':office_id' => $myOfficeId]); 
+        $stmtInbox->execute([':office_id' => $myOfficeId]);
         $inboxCount = $stmtInbox->fetchColumn();
 
     } catch (PDOException $e) {
@@ -661,7 +661,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
             <?php elseif ($roleName === 'SP Secretary' || $roleName === 'SP Secretary'): ?>
             <!-- ADMIN SIDEBAR -->
             <div class="nav-section text-[#0033A1] text-xs font-bold px-2 mt-6 mb-1">DOCUMENT MANAGEMENT</div>
-            <a href="/PangasinanLIS/pages/sp_secretary/inbox" data-tooltip="Inbox"
+            <a href="/PangasinanLIS/pages/sp_secretary/inbox" data-tooltip="Inbox" data-badge="inbox"
                 class="relative flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
                 <span class="mr-2 shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-inbox-icon lucide-inbox"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
@@ -670,14 +670,14 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
                 
                 <!-- INBOX BADGE COUNTER -->
                 <?php if (isset($inboxCount) && $inboxCount > 0): ?>
-                    <span class="sidebar-badge bg-[#0033A1] text-white text-xs font-semibold w-5 h-5 flex items-center justify-center rounded-full ml-auto shadow-sm shrink-0">
+                    <span class="sidebar-badge inbox-count-badge bg-[#0033A1] text-white text-xs font-semibold w-5 h-5 flex items-center justify-center rounded-full ml-auto shadow-sm shrink-0">
                         <?= $inboxCount > 99 ? '99+' : $inboxCount ?>
                     </span>
                 <?php endif; ?>
             </a>
 
             <!-- RECEIVED DOCUMENTS LINK WITH BADGE -->
-            <a href="/PangasinanLIS/pages/sp_secretary/received_documents" data-tooltip="Received Documents"
+            <a href="/PangasinanLIS/pages/sp_secretary/received_documents" data-tooltip="Received Documents" data-badge="received"
                 class="relative flex items-center px-2 py-2 text-[#374151] hover:bg-[#E2F0FF] hover:text-[#0033A1] text-sm font-semibold rounded-sm transition-all group">
                 <span class="mr-2 shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-check-icon lucide-file-check"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="m9 15 2 2 4-4"/></svg>
@@ -686,7 +686,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
                 
                 <!-- RECEIVED BADGE COUNTER -->
                 <?php if (isset($receivedCount) && $receivedCount > 0): ?>
-                    <span class="sidebar-badge bg-[#0033A1] text-white text-xs font-semibold w-5 h-5 flex items-center justify-center rounded-full ml-auto shadow-sm shrink-0">
+                    <span class="sidebar-badge received-count-badge bg-[#0033A1] text-white text-xs font-semibold w-5 h-5 flex items-center justify-center rounded-full ml-auto shadow-sm shrink-0">
                         <?= $receivedCount > 99 ? '99+' : $receivedCount ?>
                     </span>
                 <?php endif; ?>
@@ -966,7 +966,7 @@ if (isset($pdo) && isset($_SESSION['user_id'])) {
         </div>
 
         <a href="/PangasinanLIS/includes/auth_logout"
-            class="sidebar-logout-btn text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors shrink-0"
+        class="sidebar-logout-btn text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors shrink-0"
             title="Logout">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
